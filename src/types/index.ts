@@ -6,30 +6,61 @@ export interface NavItem {
   children?: NavItem[]
 }
 
+export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK' | 'ARCHIVED'
+
 export interface Category {
   id: string
   name: string
   slug: string
-  description?: string
-  image?: string
-  parentId?: string
+  description?: string | null
+  image?: string | null
+  imageUrl?: string | null
+  parentId?: string | null
   children?: Category[]
+  parent?: Category | null
   sortOrder: number
   isActive: boolean
+  createdAt?: string
+  updatedAt?: string
+  _count?: {
+    products?: number
+    children?: number
+  }
 }
 
 export interface ProductImage {
   id: string
+  productId?: string
   url: string
-  altText?: string
+  storagePath?: string | null
+  altText?: string | null
   sortOrder: number
   isPrimary: boolean
+  createdAt?: string
 }
 
 export interface QuantityPrice {
+  id?: string
+  productId?: string
   minQty: number
-  maxQty?: number
+  maxQty?: number | null
   pricePerUnit: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface Vendor {
+  id: string
+  name: string
+  companyName: string
+  email: string
+  phone: string
+  city: string
+  state: string
+  gstin?: string | null
+  status: 'ACTIVE' | 'INACTIVE' | 'PENDING'
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Product {
@@ -38,20 +69,34 @@ export interface Product {
   slug: string
   sku: string
   categoryId: string
-  subcategory?: string
+  subcategoryId?: string | null
+  subcategory?: string | null
+  vendorId?: string | null
+  vendor?: Vendor | null
+  shortDescription?: string | null
   description: string
-  brand?: string
-  color?: string
-  size?: string
-  material?: string
+  specifications?: Record<string, unknown> | null
+  brand?: string | null
+  color?: string | null
+  size?: string | null
+  material?: string | null
   moq: number
-  basePrice: number
-  mrp?: number
+  wholesalePrice: number
+  basePrice?: number
+  mrp?: number | null
   gstPercent: number
   stock: number
+  weight?: number | null
+  dimensions?: string | null
+  status: ProductStatus
+  featured: boolean
+  isArchived: boolean
   images: ProductImage[]
   quantityPricing: QuantityPrice[]
-  status: 'DRAFT' | 'ACTIVE' | 'INACTIVE'
+  category?: Category | null
+  subCategoryRel?: Category | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface CartItem {
