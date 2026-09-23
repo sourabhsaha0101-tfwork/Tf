@@ -35,11 +35,11 @@ export const categoryService = {
       })
 
       if (categories && categories.length > 0) {
-        return categories.map((c) => ({
+        return categories.map((c: { createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any }; children: { createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any } }[] }) => ({
           ...c,
           createdAt: c.createdAt.toISOString(),
           updatedAt: c.updatedAt.toISOString(),
-          children: c.children.map((ch) => ({
+          children: c.children.map((ch: { createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any } }) => ({
             ...ch,
             createdAt: ch.createdAt.toISOString(),
             updatedAt: ch.updatedAt.toISOString(),
@@ -112,7 +112,7 @@ export const categoryService = {
                 updatedAt: cat.parent.updatedAt.toISOString(),
               }
             : null,
-          children: cat.children.map((ch) => ({
+          children: cat.children.map((ch: { createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any } }) => ({
             ...ch,
             createdAt: ch.createdAt.toISOString(),
             updatedAt: ch.updatedAt.toISOString(),
@@ -165,7 +165,7 @@ export const categoryService = {
                 updatedAt: cat.parent.updatedAt.toISOString(),
               }
             : null,
-          children: cat.children.map((ch) => ({
+          children: cat.children.map((ch: { createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any } }) => ({
             ...ch,
             createdAt: ch.createdAt.toISOString(),
             updatedAt: ch.updatedAt.toISOString(),
