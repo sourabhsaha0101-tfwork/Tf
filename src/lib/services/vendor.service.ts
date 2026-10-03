@@ -10,7 +10,7 @@ export const vendorService = {
         orderBy: { companyName: 'asc' },
       })
       if (vendors && vendors.length > 0) {
-        return vendors.map((v: { status: string; createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any } }) => ({
+        return vendors.map((v: any) => ({
           ...v,
           status: v.status as 'ACTIVE' | 'INACTIVE' | 'PENDING',
           createdAt: v.createdAt.toISOString(),
