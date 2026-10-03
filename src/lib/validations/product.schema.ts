@@ -31,6 +31,23 @@ export const productSchema = z.object({
     .max(50, 'SKU must be under 50 characters')
     .regex(/^[A-Za-z0-9-_]+$/, 'SKU can only contain alphanumeric characters, hyphens and underscores')
     .transform((val) => val.toUpperCase()),
+  
+  // Phase 3 Product Type & Style Code
+  productType: z.enum(['READY_WHOLESALE', 'CUSTOM_MANUFACTURING', 'BOTH']).default('READY_WHOLESALE'),
+  styleCode: z.string().trim().max(50).optional().nullable(),
+  indicativePriceMin: z.coerce.number().min(0, 'Indicative price min cannot be negative').optional().nullable(),
+  indicativePriceMax: z.coerce.number().min(0, 'Indicative price max cannot be negative').optional().nullable(),
+  indicativeCurrency: z.enum(['USD', 'INR']).default('USD'),
+  priceBasis: z.string().trim().max(50).default('FOB').optional().nullable(),
+  sampleAvailable: z.boolean().default(true),
+  samplePrice: z.coerce.number().min(0, 'Sample price cannot be negative').optional().nullable(),
+  customLogoAvailable: z.boolean().default(true),
+  privateLabelAvailable: z.boolean().default(true),
+  customPackagingAvailable: z.boolean().default(true),
+  customBarcodeAvailable: z.boolean().default(true),
+  customizationOptions: z.record(z.string(), z.unknown()).optional().nullable(),
+  qualityStandard: z.string().trim().max(100).default('ANSI/ASQ Z1.4 — AQL 2.5').optional().nullable(),
+
   categoryId: z.string().min(1, 'Category is required'),
   subcategoryId: z.string().optional().nullable().or(z.literal('')),
   vendorId: z.string().optional().nullable().or(z.literal('')),
@@ -43,7 +60,7 @@ export const productSchema = z.object({
   weight: z.coerce.number().min(0, 'Weight cannot be negative').optional().nullable(),
   dimensions: z.string().trim().max(100).optional().nullable(),
   mrp: z.coerce.number().min(0, 'MRP cannot be negative').optional().nullable(),
-  wholesalePrice: z.coerce.number().positive('Wholesale price must be greater than 0'),
+  wholesalePrice: z.coerce.number().min(0, 'Wholesale price cannot be negative').default(0),
   gstPercent: z.coerce.number().min(0, 'GST % cannot be negative').max(28, 'GST % cannot exceed 28%').default(18),
   moq: z.coerce.number().int().min(1, 'MOQ must be at least 1').default(1),
   stock: z.coerce.number().int().min(0, 'Stock cannot be negative').default(0),
@@ -53,7 +70,18 @@ export const productSchema = z.object({
   quantityPricing: z.array(priceTierSchema).default([]),
 }).refine(
   (data) => {
-    if (data.mrp !== null && data.mrp !== undefined) {
+    if (data.productType !== 'CUSTOM_MANUFACTURING' && data.wholesalePrice <= 0) {
+      return false
+    }
+    return true
+  },
+  {
+    message: 'Wholesale price must be greater than 0 for wholesale products',
+    path: ['wholesalePrice'],
+  }
+).refine(
+  (data) => {
+    if (data.mrp !== null && data.mrp !== undefined && data.wholesalePrice > 0) {
       return data.wholesalePrice <= data.mrp
     }
     return true
@@ -61,6 +89,18 @@ export const productSchema = z.object({
   {
     message: 'Wholesale price cannot exceed MRP',
     path: ['wholesalePrice'],
+  }
+).refine(
+  (data) => {
+    if (data.indicativePriceMin !== null && data.indicativePriceMin !== undefined &&
+        data.indicativePriceMax !== null && data.indicativePriceMax !== undefined) {
+      return data.indicativePriceMin <= data.indicativePriceMax
+    }
+    return true
+  },
+  {
+    message: 'Indicative price min cannot exceed indicative price max',
+    path: ['indicativePriceMin'],
   }
 ).refine(
   (data) => {
@@ -72,7 +112,7 @@ export const productSchema = z.object({
       if (tier.maxQuantity !== null && tier.maxQuantity !== undefined && tier.maxQuantity < tier.minQuantity) {
         return false
       }
-      if (tier.pricePerUnit > data.wholesalePrice) {
+      if (data.wholesalePrice > 0 && tier.pricePerUnit > data.wholesalePrice) {
         return false
       }
     }
@@ -85,3 +125,4 @@ export const productSchema = z.object({
 )
 
 export type ProductInput = z.infer<typeof productSchema>
+export type ProductOutput = z.infer<typeof productSchema>

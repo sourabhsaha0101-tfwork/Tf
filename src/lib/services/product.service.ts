@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { dbFallback } from '@/lib/db-fallback'
 import { ProductInput } from '@/lib/validations/product.schema'
-import { Product, ProductStatus } from '@/types'
+import { Product, ProductStatus, ProductType, Currency } from '@/types'
 import { tierPricingService } from './tier-pricing.service'
 import { randomUUID } from 'crypto'
 
@@ -11,6 +11,7 @@ export interface ProductQueryParams {
   subcategoryId?: string
   categorySlug?: string
   subcategorySlug?: string
+  productType?: string
   status?: string
   page?: number
   limit?: number
@@ -52,9 +53,12 @@ function formatPrismaProduct(p: any, isCustomer: boolean = false): Product {
     name: p.name,
     slug: p.slug,
     sku: p.sku,
+    productType: (p.productType as ProductType) || 'READY_WHOLESALE',
+    styleCode: p.styleCode || null,
     categoryId: p.categoryId,
     subcategoryId: p.subcategoryId,
     subcategory: p.subcategory || p.subCategoryRel?.name,
+    // CRITICAL SECURITY RULE: Strip vendor/factory details completely for customer requests
     vendorId: isCustomer ? null : p.vendorId,
     vendor: isCustomer
       ? null
@@ -89,6 +93,18 @@ function formatPrismaProduct(p: any, isCustomer: boolean = false): Product {
     status: p.status as ProductStatus,
     featured: Boolean(p.featured),
     isArchived: Boolean(p.isArchived),
+    indicativePriceMin: p.indicativePriceMin !== null && p.indicativePriceMin !== undefined ? Number(p.indicativePriceMin) : null,
+    indicativePriceMax: p.indicativePriceMax !== null && p.indicativePriceMax !== undefined ? Number(p.indicativePriceMax) : null,
+    indicativeCurrency: (p.indicativeCurrency as Currency) || 'USD',
+    priceBasis: p.priceBasis || 'FOB',
+    sampleAvailable: p.sampleAvailable !== undefined ? Boolean(p.sampleAvailable) : true,
+    samplePrice: p.samplePrice !== null && p.samplePrice !== undefined ? Number(p.samplePrice) : null,
+    customLogoAvailable: p.customLogoAvailable !== undefined ? Boolean(p.customLogoAvailable) : true,
+    privateLabelAvailable: p.privateLabelAvailable !== undefined ? Boolean(p.privateLabelAvailable) : true,
+    customPackagingAvailable: p.customPackagingAvailable !== undefined ? Boolean(p.customPackagingAvailable) : true,
+    customBarcodeAvailable: p.customBarcodeAvailable !== undefined ? Boolean(p.customBarcodeAvailable) : true,
+    customizationOptions: (p.customizationOptions as Record<string, unknown>) || null,
+    qualityStandard: p.qualityStandard || 'ANSI/ASQ Z1.4 — AQL 2.5',
     images,
     quantityPricing,
     category: p.category
@@ -116,10 +132,19 @@ function formatPrismaProduct(p: any, isCustomer: boolean = false): Product {
 
 export const productService = {
   /**
-   * Admin product query with server-side pagination, search, category and status filtering
+   * Admin product query with server-side pagination, search, category, productType, and status filtering
    */
   async getAdminProducts(params: ProductQueryParams = {}): Promise<PaginatedProducts> {
-    const { search = '', categoryId = '', subcategoryId = '', status = '', page = 1, limit = 10, sort = 'updatedAt_desc' } = params
+    const {
+      search = '',
+      categoryId = '',
+      subcategoryId = '',
+      productType = '',
+      status = '',
+      page = 1,
+      limit = 10,
+      sort = 'updatedAt_desc',
+    } = params
 
     const currentPage = Math.max(1, Number(page) || 1)
     const pageSize = Math.max(1, Math.min(100, Number(limit) || 10))
@@ -133,6 +158,7 @@ export const productService = {
         where.OR = [
           { name: { contains: q, mode: 'insensitive' } },
           { sku: { contains: q, mode: 'insensitive' } },
+          { styleCode: { contains: q, mode: 'insensitive' } },
           { brand: { contains: q, mode: 'insensitive' } },
           { description: { contains: q, mode: 'insensitive' } },
         ]
@@ -144,6 +170,10 @@ export const productService = {
 
       if (subcategoryId && subcategoryId !== 'all') {
         where.subcategoryId = subcategoryId
+      }
+
+      if (productType && productType !== 'all') {
+        where.productType = productType
       }
 
       if (status && status !== 'all') {
@@ -196,6 +226,7 @@ export const productService = {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
+          (p.styleCode && p.styleCode.toLowerCase().includes(q)) ||
           (p.brand && p.brand.toLowerCase().includes(q)) ||
           p.description.toLowerCase().includes(q)
       )
@@ -207,6 +238,10 @@ export const productService = {
 
     if (subcategoryId && subcategoryId !== 'all') {
       filtered = filtered.filter((p) => p.subcategoryId === subcategoryId)
+    }
+
+    if (productType && productType !== 'all') {
+      filtered = filtered.filter((p) => p.productType === productType)
     }
 
     if (status && status !== 'all') {
@@ -253,7 +288,15 @@ export const productService = {
    * Public customer catalog query: strictly active, non-archived products, vendor info stripped
    */
   async getCustomerProducts(params: ProductQueryParams = {}): Promise<PaginatedProducts> {
-    const { search = '', categorySlug = '', subcategorySlug = '', page = 1, limit = 12, sort = 'newest' } = params
+    const {
+      search = '',
+      categorySlug = '',
+      subcategorySlug = '',
+      productType = '',
+      page = 1,
+      limit = 12,
+      sort = 'newest',
+    } = params
 
     const currentPage = Math.max(1, Number(page) || 1)
     const pageSize = Math.max(1, Math.min(50, Number(limit) || 12))
@@ -269,6 +312,7 @@ export const productService = {
         const q = search.trim()
         where.OR = [
           { name: { contains: q, mode: 'insensitive' } },
+          { styleCode: { contains: q, mode: 'insensitive' } },
           { brand: { contains: q, mode: 'insensitive' } },
           { description: { contains: q, mode: 'insensitive' } },
         ]
@@ -280,6 +324,14 @@ export const productService = {
 
       if (subcategorySlug) {
         where.subCategoryRel = { slug: subcategorySlug }
+      }
+
+      if (productType === 'READY_WHOLESALE') {
+        where.productType = { in: ['READY_WHOLESALE', 'BOTH'] }
+      } else if (productType === 'CUSTOM_MANUFACTURING') {
+        where.productType = { in: ['CUSTOM_MANUFACTURING', 'BOTH'] }
+      } else if (productType && productType !== 'all') {
+        where.productType = productType
       }
 
       let orderBy: any = { createdAt: 'desc' }
@@ -324,6 +376,7 @@ export const productService = {
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
+          (p.styleCode && p.styleCode.toLowerCase().includes(q)) ||
           (p.brand && p.brand.toLowerCase().includes(q)) ||
           p.description.toLowerCase().includes(q)
       )
@@ -339,6 +392,14 @@ export const productService = {
       const sub = dbFallback.categories.find((c) => c.slug === subcategorySlug)
       if (sub) filtered = filtered.filter((p) => p.subcategoryId === sub.id)
       else filtered = []
+    }
+
+    if (productType === 'READY_WHOLESALE') {
+      filtered = filtered.filter((p) => p.productType === 'READY_WHOLESALE' || p.productType === 'BOTH')
+    } else if (productType === 'CUSTOM_MANUFACTURING') {
+      filtered = filtered.filter((p) => p.productType === 'CUSTOM_MANUFACTURING' || p.productType === 'BOTH')
+    } else if (productType && productType !== 'all') {
+      filtered = filtered.filter((p) => p.productType === productType)
     }
 
     if (sort === 'price_asc') filtered.sort((a, b) => a.wholesalePrice - b.wholesalePrice)
@@ -458,9 +519,9 @@ export const productService = {
 
     return {
       ...found,
-      vendor: v || null,
       category: cat ? { id: cat.id, name: cat.name, slug: cat.slug, sortOrder: cat.sortOrder, isActive: cat.isActive } : null,
       subCategoryRel: sub ? { id: sub.id, name: sub.name, slug: sub.slug, sortOrder: sub.sortOrder, isActive: sub.isActive } : null,
+      vendor: v || null,
       images: pImages,
       quantityPricing: pTiers,
     }
@@ -471,6 +532,13 @@ export const productService = {
     try {
       const p = await prisma.product.findUnique({
         where: { sku: normalized },
+        include: {
+          images: { orderBy: { sortOrder: 'asc' } },
+          quantityPricing: { orderBy: { minQty: 'asc' } },
+          category: true,
+          subCategoryRel: true,
+          vendor: true,
+        },
       })
       if (p) return formatPrismaProduct(p, false)
     } catch {
@@ -478,32 +546,77 @@ export const productService = {
     }
 
     const found = dbFallback.products.find((p) => p.sku.toUpperCase() === normalized)
-    return found ? (found as unknown as Product) : null
+    if (!found) return null
+    return this.getProductById(found.id)
+  },
+
+  async getProductByStyleCode(styleCode: string): Promise<Product | null> {
+    const normalized = styleCode.trim()
+    try {
+      const p = await prisma.product.findFirst({
+        where: { styleCode: normalized },
+        include: {
+          images: { orderBy: { sortOrder: 'asc' } },
+          quantityPricing: { orderBy: { minQty: 'asc' } },
+          category: true,
+          subCategoryRel: true,
+          vendor: true,
+        },
+      })
+      if (p) return formatPrismaProduct(p, false)
+    } catch {
+      // Fallback
+    }
+
+    const found = dbFallback.products.find((p) => p.styleCode === normalized)
+    if (!found) return null
+    return this.getProductById(found.id)
   },
 
   /**
-   * Create product with validated SKU, slug, images, and B2B pricing tiers
+   * Helper to generate a unique Tuffloom Style Code
    */
-  async createProduct(input: ProductInput): Promise<Product> {
-    const slug = input.slug.toLowerCase().trim()
-    const sku = input.sku.toUpperCase().trim()
+  async generateStyleCode(categoryId: string): Promise<string> {
+    const cat = dbFallback.categories.find((c) => c.id === categoryId)
+    let prefix = 'TL-GEN'
+    if (cat) {
+      const name = cat.name.toLowerCase()
+      if (name.includes('bag')) prefix = 'TL-BAG'
+      else if (name.includes('cloth') || name.includes('apparel')) prefix = 'TL-APP'
+      else if (name.includes('foot') || name.includes('shoe')) prefix = 'TL-SHOE'
+    }
+    const rand = Math.floor(100 + Math.random() * 900)
+    return `${prefix}-${rand}`
+  },
 
-    // 1. Check duplicate SKU
+  async createProduct(input: ProductInput): Promise<Product> {
+    const sku = input.sku.toUpperCase().trim()
+    const slug = input.slug.toLowerCase().trim()
+
+    // 1. Verify unique SKU
     const existingSku = await this.getProductBySku(sku)
     if (existingSku) {
       throw new Error(`A product with SKU "${sku}" already exists.`)
     }
 
-    // 2. Check duplicate Slug
-    const existingSlug = await this.getProductBySlug(slug, { isCustomer: false })
+    // 2. Verify unique slug
+    const existingSlug = await this.getProductBySlug(slug)
     if (existingSlug) {
       throw new Error(`A product with slug "${slug}" already exists.`)
     }
 
-    // 3. Validate price tiers against wholesale price and MOQ
-    const tierValidation = tierPricingService.validatePriceTiers(input.wholesalePrice, input.moq, input.quantityPricing as any)
-    if (!tierValidation.valid) {
-      throw new Error(tierValidation.errors.join(' '))
+    // 3. Validate price tiers against wholesale price and MOQ (for wholesale products)
+    if (input.wholesalePrice > 0 && input.quantityPricing && input.quantityPricing.length > 0) {
+      const tierValidation = tierPricingService.validatePriceTiers(input.wholesalePrice, input.moq, input.quantityPricing as any)
+      if (!tierValidation.valid) {
+        throw new Error(tierValidation.errors.join(' '))
+      }
+    }
+
+    // Determine or generate Style Code
+    let styleCode = input.styleCode?.trim() || null
+    if (!styleCode && input.productType !== 'READY_WHOLESALE') {
+      styleCode = await this.generateStyleCode(input.categoryId)
     }
 
     // Ensure at least one primary image if images provided
@@ -521,6 +634,8 @@ export const productService = {
           name: input.name,
           slug,
           sku,
+          productType: input.productType,
+          styleCode,
           categoryId: input.categoryId,
           subcategoryId: input.subcategoryId || null,
           vendorId: input.vendorId || null,
@@ -541,6 +656,18 @@ export const productService = {
           status: input.status,
           featured: input.featured,
           isArchived: false,
+          indicativePriceMin: input.indicativePriceMin !== undefined ? input.indicativePriceMin : null,
+          indicativePriceMax: input.indicativePriceMax !== undefined ? input.indicativePriceMax : null,
+          indicativeCurrency: input.indicativeCurrency,
+          priceBasis: input.priceBasis || 'FOB',
+          sampleAvailable: input.sampleAvailable,
+          samplePrice: input.samplePrice !== undefined ? input.samplePrice : null,
+          customLogoAvailable: input.customLogoAvailable,
+          privateLabelAvailable: input.privateLabelAvailable,
+          customPackagingAvailable: input.customPackagingAvailable,
+          customBarcodeAvailable: input.customBarcodeAvailable,
+          customizationOptions: input.customizationOptions as any,
+          qualityStandard: input.qualityStandard || 'ANSI/ASQ Z1.4 — AQL 2.5',
           images: {
             create: images.map((img, idx) => ({
               url: img.url,
@@ -577,6 +704,8 @@ export const productService = {
       name: input.name,
       slug,
       sku,
+      productType: input.productType,
+      styleCode,
       categoryId: input.categoryId,
       subcategoryId: input.subcategoryId || null,
       subcategory: null,
@@ -598,6 +727,18 @@ export const productService = {
       status: input.status,
       featured: input.featured,
       isArchived: false,
+      indicativePriceMin: input.indicativePriceMin !== undefined ? input.indicativePriceMin : null,
+      indicativePriceMax: input.indicativePriceMax !== undefined ? input.indicativePriceMax : null,
+      indicativeCurrency: input.indicativeCurrency,
+      priceBasis: input.priceBasis || 'FOB',
+      sampleAvailable: input.sampleAvailable,
+      samplePrice: input.samplePrice !== undefined ? input.samplePrice : null,
+      customLogoAvailable: input.customLogoAvailable,
+      privateLabelAvailable: input.privateLabelAvailable,
+      customPackagingAvailable: input.customPackagingAvailable,
+      customBarcodeAvailable: input.customBarcodeAvailable,
+      customizationOptions: input.customizationOptions,
+      qualityStandard: input.qualityStandard || 'ANSI/ASQ Z1.4 — AQL 2.5',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -617,84 +758,76 @@ export const productService = {
       })
     })
 
-    ;(input.quantityPricing || []).forEach((t) => {
-      dbFallback.priceTiers.push({
-        id: `tier-${randomUUID()}`,
-        productId: newId,
-        minQty: t.minQuantity,
-        maxQty: t.maxQuantity || null,
-        pricePerUnit: t.pricePerUnit,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+    if (input.quantityPricing) {
+      input.quantityPricing.forEach((t) => {
+        dbFallback.priceTiers.push({
+          id: `tier-${randomUUID()}`,
+          productId: newId,
+          minQty: t.minQuantity,
+          maxQty: t.maxQuantity || null,
+          pricePerUnit: t.pricePerUnit,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
       })
-    })
+    }
 
     const full = await this.getProductById(newId)
     return full!
   },
 
-  /**
-   * Update product with transactional sync of images and quantity tiers
-   */
   async updateProduct(id: string, input: Partial<ProductInput>): Promise<Product> {
     const existing = await this.getProductById(id)
     if (!existing) {
       throw new Error(`Product with ID "${id}" not found.`)
     }
 
-    // SKU check
-    if (input.sku && input.sku.toUpperCase() !== existing.sku.toUpperCase()) {
-      const dup = await this.getProductBySku(input.sku.toUpperCase())
-      if (dup && dup.id !== id) {
-        throw new Error(`SKU "${input.sku}" is already assigned to another product.`)
+    if (input.sku && input.sku.toUpperCase() !== existing.sku) {
+      const collision = await this.getProductBySku(input.sku.toUpperCase())
+      if (collision && collision.id !== id) {
+        throw new Error(`SKU "${input.sku.toUpperCase()}" is already in use by another product.`)
       }
     }
 
-    // Slug check
-    if (input.slug && input.slug.toLowerCase() !== existing.slug.toLowerCase()) {
-      const dup = await this.getProductBySlug(input.slug.toLowerCase())
-      if (dup && dup.id !== id) {
-        throw new Error(`Slug "${input.slug}" is already taken by another product.`)
-      }
-    }
-
-    const wholesalePrice = input.wholesalePrice ?? existing.wholesalePrice
-    const moq = input.moq ?? existing.moq
-
-    if (input.quantityPricing) {
-      const tierValidation = tierPricingService.validatePriceTiers(wholesalePrice, moq, input.quantityPricing as any)
-      if (!tierValidation.valid) {
-        throw new Error(tierValidation.errors.join(' '))
+    if (input.slug && input.slug.toLowerCase() !== existing.slug) {
+      const collision = await this.getProductBySlug(input.slug.toLowerCase())
+      if (collision && collision.id !== id) {
+        throw new Error(`Slug "${input.slug.toLowerCase()}" is already in use by another product.`)
       }
     }
 
     try {
-      // Prisma update with transactional replace of images & tiers if provided
       await prisma.$transaction(async (tx) => {
-        if (input.images) {
+        if (input.images !== undefined) {
           await tx.productImage.deleteMany({ where: { productId: id } })
-          await tx.productImage.createMany({
-            data: input.images.map((img, idx) => ({
-              productId: id,
-              url: img.url,
-              storagePath: img.storagePath || null,
-              altText: img.altText || null,
-              sortOrder: img.sortOrder ?? idx,
-              isPrimary: img.isPrimary ?? idx === 0,
-            })),
-          })
+          if (input.images && input.images.length > 0) {
+            await tx.productImage.createMany({
+              data: input.images.map((img, idx) => ({
+                id: `img-${randomUUID()}`,
+                productId: id,
+                url: img.url,
+                storagePath: img.storagePath || null,
+                altText: img.altText || null,
+                sortOrder: img.sortOrder ?? idx,
+                isPrimary: img.isPrimary ?? idx === 0,
+              })),
+            })
+          }
         }
 
-        if (input.quantityPricing) {
+        if (input.quantityPricing !== undefined) {
           await tx.quantityPricing.deleteMany({ where: { productId: id } })
-          await tx.quantityPricing.createMany({
-            data: input.quantityPricing.map((t) => ({
-              productId: id,
-              minQty: t.minQuantity,
-              maxQty: t.maxQuantity || null,
-              pricePerUnit: t.pricePerUnit,
-            })),
-          })
+          if (input.quantityPricing && input.quantityPricing.length > 0) {
+            await tx.quantityPricing.createMany({
+              data: input.quantityPricing.map((t) => ({
+                id: `tier-${randomUUID()}`,
+                productId: id,
+                minQty: t.minQuantity,
+                maxQty: t.maxQuantity || null,
+                pricePerUnit: t.pricePerUnit,
+              })),
+            })
+          }
         }
 
         await tx.product.update({
@@ -703,6 +836,8 @@ export const productService = {
             name: input.name,
             slug: input.slug?.toLowerCase(),
             sku: input.sku?.toUpperCase(),
+            productType: input.productType,
+            styleCode: input.styleCode,
             categoryId: input.categoryId,
             subcategoryId: input.subcategoryId !== undefined ? input.subcategoryId || null : undefined,
             vendorId: input.vendorId !== undefined ? input.vendorId || null : undefined,
@@ -722,6 +857,18 @@ export const productService = {
             stock: input.stock,
             status: input.status,
             featured: input.featured,
+            indicativePriceMin: input.indicativePriceMin,
+            indicativePriceMax: input.indicativePriceMax,
+            indicativeCurrency: input.indicativeCurrency,
+            priceBasis: input.priceBasis,
+            sampleAvailable: input.sampleAvailable,
+            samplePrice: input.samplePrice,
+            customLogoAvailable: input.customLogoAvailable,
+            privateLabelAvailable: input.privateLabelAvailable,
+            customPackagingAvailable: input.customPackagingAvailable,
+            customBarcodeAvailable: input.customBarcodeAvailable,
+            customizationOptions: input.customizationOptions as any,
+            qualityStandard: input.qualityStandard,
           },
         })
       })
@@ -740,6 +887,8 @@ export const productService = {
         name: input.name ?? cur.name,
         slug: input.slug ? input.slug.toLowerCase() : cur.slug,
         sku: input.sku ? input.sku.toUpperCase() : cur.sku,
+        productType: input.productType ?? cur.productType,
+        styleCode: input.styleCode !== undefined ? input.styleCode : cur.styleCode,
         categoryId: input.categoryId ?? cur.categoryId,
         subcategoryId: input.subcategoryId !== undefined ? input.subcategoryId || null : cur.subcategoryId,
         vendorId: input.vendorId !== undefined ? input.vendorId || null : cur.vendorId,
@@ -759,6 +908,18 @@ export const productService = {
         stock: input.stock ?? cur.stock,
         status: input.status ?? cur.status,
         featured: input.featured ?? cur.featured,
+        indicativePriceMin: input.indicativePriceMin !== undefined ? input.indicativePriceMin : cur.indicativePriceMin,
+        indicativePriceMax: input.indicativePriceMax !== undefined ? input.indicativePriceMax : cur.indicativePriceMax,
+        indicativeCurrency: input.indicativeCurrency ?? cur.indicativeCurrency,
+        priceBasis: input.priceBasis ?? cur.priceBasis,
+        sampleAvailable: input.sampleAvailable ?? cur.sampleAvailable,
+        samplePrice: input.samplePrice !== undefined ? input.samplePrice : cur.samplePrice,
+        customLogoAvailable: input.customLogoAvailable ?? cur.customLogoAvailable,
+        privateLabelAvailable: input.privateLabelAvailable ?? cur.privateLabelAvailable,
+        customPackagingAvailable: input.customPackagingAvailable ?? cur.customPackagingAvailable,
+        customBarcodeAvailable: input.customBarcodeAvailable ?? cur.customBarcodeAvailable,
+        customizationOptions: input.customizationOptions ?? cur.customizationOptions,
+        qualityStandard: input.qualityStandard ?? cur.qualityStandard,
         updatedAt: new Date().toISOString(),
       }
 
@@ -804,9 +965,6 @@ export const productService = {
     return this.updateProduct(id, { status })
   },
 
-  /**
-   * Soft-deletes / archives product so historical orders and invoices remain intact
-   */
   async archiveProduct(id: string): Promise<Product> {
     try {
       await prisma.product.update({
@@ -834,9 +992,6 @@ export const productService = {
     throw new Error('Product not found')
   },
 
-  /**
-   * Clones a product with a unique -COPY SKU and slug for fast admin management
-   */
   async duplicateProduct(id: string): Promise<Product> {
     const original = await this.getProductById(id)
     if (!original) {
@@ -857,6 +1012,8 @@ export const productService = {
       name: `${original.name} (Copy)`,
       slug: newSlug,
       sku: newSku,
+      productType: original.productType,
+      styleCode: original.styleCode ? `${original.styleCode}-CP${copyNum}` : null,
       categoryId: original.categoryId,
       subcategoryId: original.subcategoryId,
       vendorId: original.vendorId,
@@ -875,6 +1032,18 @@ export const productService = {
       stock: original.stock,
       status: 'DRAFT',
       featured: false,
+      indicativePriceMin: original.indicativePriceMin,
+      indicativePriceMax: original.indicativePriceMax,
+      indicativeCurrency: (original.indicativeCurrency as 'USD' | 'INR') || 'USD',
+      priceBasis: original.priceBasis,
+      sampleAvailable: original.sampleAvailable ?? true,
+      samplePrice: original.samplePrice,
+      customLogoAvailable: original.customLogoAvailable ?? true,
+      privateLabelAvailable: original.privateLabelAvailable ?? true,
+      customPackagingAvailable: original.customPackagingAvailable ?? true,
+      customBarcodeAvailable: original.customBarcodeAvailable ?? true,
+      customizationOptions: original.customizationOptions,
+      qualityStandard: original.qualityStandard,
       images: original.images.map((img) => ({
         url: img.url,
         storagePath: img.storagePath,
@@ -892,18 +1061,13 @@ export const productService = {
     return duplicated
   },
 
-  /**
-   * Delete product: safety check ensures order history is preserved
-   */
   async deleteProduct(id: string): Promise<{ success: boolean; message: string }> {
     try {
-      // Check if product is in order items
       const orderCount = await prisma.orderItem.count({
         where: { productId: id },
       })
 
       if (orderCount > 0) {
-        // Automatically archive to protect historical orders
         await this.archiveProduct(id)
         return {
           success: true,

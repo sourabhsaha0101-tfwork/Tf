@@ -74,6 +74,89 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum ProductType {
+  READY_WHOLESALE
+  CUSTOM_MANUFACTURING
+  BOTH
+}
+
+enum Currency {
+  USD
+  INR
+}
+
+enum TradeTerm {
+  FOB
+  CIF
+  EX_FACTORY
+}
+
+enum QuotationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  NEED_MORE_INFORMATION
+  SAMPLE_REQUIRED
+  QUOTATION_PREPARED
+  QUOTATION_SENT
+  CUSTOMER_APPROVAL_PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CONVERTED_TO_MANUFACTURING
+  CANCELLED
+}
+
+enum SampleStatus {
+  SAMPLE_REQUESTED
+  PAYMENT_PENDING
+  PAYMENT_CONFIRMED
+  SAMPLE_DEVELOPMENT
+  SAMPLE_READY
+  DISPATCHED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum ProductionStage {
+  ORDER_CONFIRMED
+  MATERIAL_SOURCED
+  CUTTING_DONE
+  PRODUCTION_IN_PROGRESS
+  IN_LINE_INSPECTION_30
+  FINAL_INSPECTION_AQL25
+  PACKED
+  READY_FOR_DISPATCH
+  DISPATCHED
+  SHIPMENT_IN_TRANSIT
+  DELIVERED
+}
+
+enum ManufacturingOrderStatus {
+  PENDING_ADVANCE
+  CONFIRMED
+  IN_PRODUCTION
+  INSPECTION
+  READY_FOR_DISPATCH
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+}
+
+enum InspectionStatus {
+  PENDING
+  PASSED
+  REWORK_REQUIRED
+  FAILED
+}
+
+enum CertificationStatus {
+  VERIFIED
+  EXPIRED
+  PENDING_REVIEW
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -88,10 +171,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  addresses     Address[]
-  cart          Cart?
-  orders        Order[]
-  wishlist      Wishlist?
+  addresses           Address[]
+  cart                Cart?
+  orders              Order[]
+  wishlist            Wishlist?
+  quotations          Quotation[]
+  sampleOrders        SampleOrder[]
+  manufacturingOrders ManufacturingOrder[]
 }
 
 model Address {
@@ -131,55 +217,75 @@ model Category {
   children    Category[] @relation("CategoryToCategory")
   products    Product[]  @relation("CategoryProducts")
   subProducts Product[]  @relation("SubcategoryProducts")
+  quotations  Quotation[]
 }
 
 model Product {
-  id               String         @id @default(uuid())
-  name             String
-  slug             String         @unique
-  sku              String         @unique
-  categoryId       String
-  subcategoryId    String?
-  subcategory      String?
-  shortDescription String?
-  description      String
-  specifications   Json?
-  brand            String?
-  color            String?
-  size             String?
-  material         String?
-  moq              Int            @default(1)
-  wholesalePrice   Decimal        @default(0)
-  basePrice        Decimal        @default(0)
-  mrp              Decimal?
-  gstPercent       Decimal        @default(18)
-  stock            Int            @default(0)
-  weight           Decimal?
-  dimensions       String?
-  dimensionL       Decimal?
-  dimensionW       Decimal?
-  dimensionH       Decimal?
-  vendorId         String?
-  status           ProductStatus  @default(DRAFT)
-  featured         Boolean        @default(false)
-  isArchived       Boolean        @default(false)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id                       String                 @id @default(uuid())
+  name                     String
+  slug                     String                 @unique
+  sku                      String                 @unique
+  productType              ProductType            @default(READY_WHOLESALE)
+  styleCode                String?                @unique
+  categoryId               String
+  subcategoryId            String?
+  subcategory              String?
+  shortDescription         String?
+  description              String
+  specifications           Json?
+  brand                    String?
+  color                    String?
+  size                     String?
+  material                 String?
+  moq                      Int                    @default(1)
+  wholesalePrice           Decimal                @default(0)
+  basePrice                Decimal                @default(0)
+  mrp                      Decimal?
+  gstPercent               Decimal                @default(18)
+  stock                    Int                    @default(0)
+  weight                   Decimal?
+  dimensions               String?
+  dimensionL               Decimal?
+  dimensionW               Decimal?
+  dimensionH               Decimal?
+  vendorId                 String?
+  status                   ProductStatus          @default(DRAFT)
+  featured                 Boolean                @default(false)
+  isArchived               Boolean                @default(false)
+  indicativePriceMin       Decimal?
+  indicativePriceMax       Decimal?
+  indicativeCurrency       Currency               @default(USD)
+  priceBasis               String?                @default("FOB")
+  sampleAvailable          Boolean                @default(true)
+  samplePrice              Decimal?
+  customLogoAvailable      Boolean                @default(true)
+  privateLabelAvailable    Boolean                @default(true)
+  customPackagingAvailable Boolean                @default(true)
+  customBarcodeAvailable   Boolean                @default(true)
+  customizationOptions     Json?
+  qualityStandard          String?                @default("ANSI/ASQ Z1.4 — AQL 2.5")
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
 
-  category         Category       @relation("CategoryProducts", fields: [categoryId], references: [id])
-  subCategoryRel   Category?      @relation("SubcategoryProducts", fields: [subcategoryId], references: [id])
-  vendor           Vendor?        @relation(fields: [vendorId], references: [id])
-  images           ProductImage[]
-  quantityPricing  QuantityPricing[]
-  cartItems        CartItem[]
-  orderItems       OrderItem[]
-  wishlistItems    WishlistItem[]
+  category                 Category               @relation("CategoryProducts", fields: [categoryId], references: [id])
+  subCategoryRel           Category?              @relation("SubcategoryProducts", fields: [subcategoryId], references: [id])
+  vendor                   Vendor?                @relation(fields: [vendorId], references: [id])
+  images                   ProductImage[]
+  quantityPricing          QuantityPricing[]
+  cartItems                CartItem[]
+  orderItems               OrderItem[]
+  wishlistItems            WishlistItem[]
+  quotations               Quotation[]
+  sampleOrders             SampleOrder[]
+  manufacturingOrders      ManufacturingOrder[]
 
   @@index([categoryId])
   @@index([subcategoryId])
   @@index([vendorId])
   @@index([status])
   @@index([isArchived])
+  @@index([productType])
+  @@index([styleCode])
 }
 
 model ProductImage {
@@ -213,20 +319,22 @@ model QuantityPricing {
 }
 
 model Vendor {
-  id          String       @id @default(uuid())
-  name        String
-  companyName String
-  email       String       @unique
-  phone       String
-  city        String
-  state       String
-  gstin       String?
-  categories  Json?
-  status      VendorStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id                  String               @id @default(uuid())
+  name                String
+  companyName         String
+  email               String               @unique
+  phone               String
+  city                String
+  state               String
+  gstin               String?
+  categories          Json?
+  status              VendorStatus         @default(PENDING)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
-  products    Product[]
+  products            Product[]
+  manufacturingOrders ManufacturingOrder[]
+  certifications      Certification[]
 }
 
 model Cart {
@@ -300,20 +408,27 @@ model OrderItem {
 }
 
 model Payment {
-  id              String        @id @default(uuid())
-  orderId         String        @unique
-  method          PaymentMethod
-  transactionId   String?       @unique
-  amount          Decimal
-  status          PaymentStatus @default(PENDING)
-  paidAt          DateTime?
-  gatewayResponse Json?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                   String              @id @default(uuid())
+  orderId              String?             @unique
+  sampleOrderId        String?             @unique
+  manufacturingOrderId String?
+  method               PaymentMethod
+  transactionId        String?             @unique
+  amount               Decimal
+  currency             Currency            @default(INR)
+  status               PaymentStatus       @default(PENDING)
+  paidAt               DateTime?
+  gatewayResponse      Json?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
-  order           Order         @relation(fields: [orderId], references: [id])
+  order                Order?              @relation(fields: [orderId], references: [id])
+  sampleOrder          SampleOrder?        @relation(fields: [sampleOrderId], references: [id])
+  manufacturingOrder   ManufacturingOrder? @relation(fields: [manufacturingOrderId], references: [id])
 
   @@index([orderId])
+  @@index([sampleOrderId])
+  @@index([manufacturingOrderId])
 }
 
 model Shipment {
@@ -348,24 +463,27 @@ model TrackingEvent {
 }
 
 model Invoice {
-  id              String        @id @default(uuid())
-  invoiceNumber   String        @unique
-  orderId         String        @unique
-  invoiceDate     DateTime      @default(now())
-  tuffloomDetails Json
-  customerDetails Json
-  itemsSnapshot   Json
-  subtotal        Decimal
-  gstAmount       Decimal
-  shippingAmount  Decimal       @default(0)
-  grandTotal      Decimal
-  status          InvoiceStatus @default(DRAFT)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                   String              @id @default(uuid())
+  invoiceNumber        String              @unique
+  orderId              String?             @unique
+  manufacturingOrderId String?             @unique
+  invoiceDate          DateTime            @default(now())
+  tuffloomDetails      Json
+  customerDetails      Json
+  itemsSnapshot        Json
+  subtotal             Decimal
+  gstAmount            Decimal
+  shippingAmount       Decimal             @default(0)
+  grandTotal           Decimal
+  status               InvoiceStatus       @default(DRAFT)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
-  order           Order         @relation(fields: [orderId], references: [id])
+  order                Order?              @relation(fields: [orderId], references: [id])
+  manufacturingOrder   ManufacturingOrder? @relation(fields: [manufacturingOrderId], references: [id])
 
   @@index([orderId])
+  @@index([manufacturingOrderId])
 }
 
 model Wishlist {
@@ -389,4 +507,238 @@ model WishlistItem {
 
   @@unique([wishlistId, productId])
   @@index([wishlistId])
+}
+
+model Quotation {
+  id                       String               @id @default(uuid())
+  quotationNumber          String               @unique
+  customerId               String
+  productId                String?
+  categoryId               String?
+  styleCodeSnapshot        String?
+  quantity                 Int
+  targetPrice              Decimal?
+  targetCurrency           Currency             @default(USD)
+  material                 String?
+  materialSpecification    String?
+  gsm                      String?
+  color                    String?
+  designRequirement        String?
+  dimensions               String?
+  sizeRequirements         String?
+  customLogoRequired       Boolean              @default(false)
+  privateLabelRequired     Boolean              @default(false)
+  customLabelRequired      Boolean              @default(false)
+  packagingRequired        Boolean              @default(false)
+  barcodeRequired          Boolean              @default(false)
+  brandName                String?
+  logoFileUrl              String?
+  packagingInstructions    String?
+  labelInstructions        String?
+  additionalInstructions   String?
+  targetDeliveryDate       DateTime?
+  destinationCountry       String?
+  destinationCity          String?
+  destinationPort          String?
+  tradeTerm                TradeTerm            @default(FOB)
+  originPort               String?
+  notes                    String?
+  adminNotes               String?              // Strictly ADMIN-ONLY
+  unitPriceQuoted          Decimal?
+  setupCostQuoted          Decimal?
+  sampleCostQuoted         Decimal?
+  estimatedLeadDaysQuoted  Int?
+  paymentTermsQuoted       String?
+  validUntil               DateTime?
+  status                   QuotationStatus      @default(SUBMITTED)
+  approvedAt               DateTime?
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+
+  customer                 User                 @relation(fields: [customerId], references: [id])
+  product                  Product?             @relation(fields: [productId], references: [id])
+  category                 Category?            @relation(fields: [categoryId], references: [id])
+  files                    QuotationFile[]
+  messages                 QuotationMessage[]
+  sampleOrders             SampleOrder[]
+  manufacturingOrders      ManufacturingOrder[]
+
+  @@index([customerId])
+  @@index([productId])
+  @@index([status])
+  @@index([quotationNumber])
+}
+
+model QuotationFile {
+  id          String    @id @default(uuid())
+  quotationId String
+  fileName    String
+  storagePath String
+  fileType    String
+  fileSize    Int
+  uploadedBy  String
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId])
+}
+
+model QuotationMessage {
+  id          String    @id @default(uuid())
+  quotationId String
+  senderId    String
+  senderType  String    // 'CUSTOMER' or 'ADMIN'
+  message     String
+  createdAt   DateTime  @default(now())
+
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId])
+}
+
+model SampleOrder {
+  id                  String        @id @default(uuid())
+  sampleNumber        String        @unique
+  quotationId         String?
+  customerId          String
+  productId           String?
+  styleCode           String
+  quantity            Int           @default(1)
+  samplePrice         Decimal
+  currency            Currency      @default(USD)
+  shippingDestination String
+  shippingCharge      Decimal       @default(0)
+  total               Decimal
+  paymentStatus       PaymentStatus @default(PENDING)
+  sampleStatus        SampleStatus  @default(SAMPLE_REQUESTED)
+  trackingNumber      String?
+  courier             String?
+  customerFeedback    String?
+  photos              Json?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  quotation           Quotation?    @relation(fields: [quotationId], references: [id])
+  customer            User          @relation(fields: [customerId], references: [id])
+  product             Product?      @relation(fields: [productId], references: [id])
+  payment             Payment?
+
+  @@index([customerId])
+  @@index([productId])
+  @@index([sampleStatus])
+  @@index([sampleNumber])
+}
+
+model ManufacturingOrder {
+  id                       String                   @id @default(uuid())
+  manufacturingOrderNumber String                   @unique
+  quotationId              String
+  customerId               String
+  productId                String?
+  vendorId                 String?                  // Strictly ADMIN-ONLY factory assignment
+  styleCode                String
+  quantity                 Int
+  material                 String?
+  materialSpecification    String?
+  gsm                      String?
+  color                    String?
+  designRequirement        String?
+  customLogo               Boolean                  @default(false)
+  privateLabel             Boolean                  @default(false)
+  packaging                Boolean                  @default(false)
+  barcode                  Boolean                  @default(false)
+  destinationCountry       String?
+  destinationPort          String?
+  tradeTerm                TradeTerm                @default(FOB)
+  paymentTerms             String?
+  targetDeliveryDate       DateTime?
+  unitPrice                Decimal?
+  totalAmount              Decimal?
+  advancePaid              Decimal?                 @default(0)
+  balanceDue               Decimal?                 @default(0)
+  status                   ManufacturingOrderStatus @default(CONFIRMED)
+  currentStage             ProductionStage          @default(ORDER_CONFIRMED)
+  progressPercent          Int                      @default(10)
+  dispatchDate             DateTime?
+  freightProvider          String?
+  trackingNumber           String?
+  billOfLadingUrl          String?
+  dispatchDocuments        Json?
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+
+  quotation                Quotation                @relation(fields: [quotationId], references: [id])
+  customer                 User                     @relation(fields: [customerId], references: [id])
+  product                  Product?                 @relation(fields: [productId], references: [id])
+  vendor                   Vendor?                  @relation(fields: [vendorId], references: [id])
+  payments                 Payment[]
+  invoice                  Invoice?
+  stageLogs                ProductionStageLog[]
+  inspections              QualityInspection[]
+
+  @@index([customerId])
+  @@index([quotationId])
+  @@index([vendorId])
+  @@index([status])
+  @@index([currentStage])
+  @@index([manufacturingOrderNumber])
+}
+
+model ProductionStageLog {
+  id                   String             @id @default(uuid())
+  manufacturingOrderId String
+  stage                ProductionStage
+  title                String
+  description          String?
+  photos               Json?
+  documents            Json?
+  updatedBy            String
+  isCompleted          Boolean            @default(false)
+  timestamp            DateTime           @default(now())
+
+  manufacturingOrder   ManufacturingOrder @relation(fields: [manufacturingOrderId], references: [id], onDelete: Cascade)
+
+  @@index([manufacturingOrderId])
+}
+
+model QualityInspection {
+  id                   String             @id @default(uuid())
+  inspectionNumber     String             @unique
+  manufacturingOrderId String
+  inspectorName        String
+  inspectionDate       DateTime           @default(now())
+  aqlStandard          String             @default("ANSI/ASQ Z1.4 — AQL 2.5")
+  totalChecked         Int
+  totalPassed          Int
+  totalDefective       Int
+  defectDetails        Json?
+  status               InspectionStatus   @default(PASSED)
+  reportFileUrl        String?
+  photos               Json?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  manufacturingOrder   ManufacturingOrder @relation(fields: [manufacturingOrderId], references: [id], onDelete: Cascade)
+
+  @@index([manufacturingOrderId])
+  @@index([inspectionNumber])
+}
+
+model Certification {
+  id                String              @id @default(uuid())
+  certificationName String
+  vendorId          String?
+  status            CertificationStatus @default(VERIFIED)
+  verificationDate  DateTime?
+  expiryDate        DateTime?
+  documentUrl       String?
+  publicDisplay     Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  vendor            Vendor?             @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
 }

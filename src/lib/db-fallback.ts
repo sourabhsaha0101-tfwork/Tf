@@ -1,4 +1,27 @@
 import bcrypt from 'bcryptjs'
+import {
+  ProductType,
+  Currency,
+  TradeTerm,
+  QuotationStatus,
+  SampleStatus,
+  ProductionStage,
+  ManufacturingOrderStatus,
+  InspectionStatus,
+  CertificationStatus,
+  Quotation,
+  QuotationFile,
+  QuotationMessage,
+  SampleOrder,
+  ManufacturingOrder,
+  ProductionStageLog,
+  QualityInspection,
+  Certification,
+  Order,
+  OrderItem,
+  PaymentStatus,
+  OrderStatus,
+} from '@/types'
 
 export interface FallbackCategory {
   id: string
@@ -54,6 +77,8 @@ export interface FallbackProduct {
   name: string
   slug: string
   sku: string
+  productType: ProductType
+  styleCode?: string | null
   categoryId: string
   subcategoryId?: string | null
   subcategory?: string | null
@@ -76,6 +101,18 @@ export interface FallbackProduct {
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK' | 'ARCHIVED'
   featured: boolean
   isArchived: boolean
+  indicativePriceMin?: number | null
+  indicativePriceMax?: number | null
+  indicativeCurrency?: Currency
+  priceBasis?: string | null
+  sampleAvailable?: boolean
+  samplePrice?: number | null
+  customLogoAvailable?: boolean
+  privateLabelAvailable?: boolean
+  customPackagingAvailable?: boolean
+  customBarcodeAvailable?: boolean
+  customizationOptions?: Record<string, unknown> | null
+  qualityStandard?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -98,6 +135,19 @@ class DbFallbackStore {
   images: FallbackProductImage[] = []
   priceTiers: FallbackPriceTier[] = []
   vendors: FallbackVendor[] = []
+
+  // Phase 3 Collections
+  quotations: Quotation[] = []
+  quotationFiles: QuotationFile[] = []
+  quotationMessages: QuotationMessage[] = []
+  sampleOrders: SampleOrder[] = []
+  manufacturingOrders: ManufacturingOrder[] = []
+  stageLogs: ProductionStageLog[] = []
+  inspections: QualityInspection[] = []
+  certifications: Certification[] = []
+
+  // Customer Orders, Payments & Invoices
+  orders: Order[] = []
 
   constructor() {
     this.seedDefaults()
@@ -172,6 +222,58 @@ class DbFallbackStore {
       updatedAt: new Date().toISOString(),
     }
     this.vendors = [vApex, vHeritage, vStepRight]
+
+    // Partner Factory Certifications (Admin / Verified display)
+    this.certifications = [
+      {
+        id: 'cert-001',
+        certificationName: 'SEDEX SMETA 4-Pillar Ethical Trade Audit',
+        vendorId: vApex.id,
+        status: 'VERIFIED',
+        verificationDate: '2025-06-15',
+        expiryDate: '2027-06-14',
+        documentUrl: '/uploads/certificates/sedex-apex.pdf',
+        publicDisplay: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'cert-002',
+        certificationName: 'OEKO-TEX Standard 100 Eco-Passport',
+        vendorId: vHeritage.id,
+        status: 'VERIFIED',
+        verificationDate: '2025-08-10',
+        expiryDate: '2026-08-09',
+        documentUrl: '/uploads/certificates/oekotex-heritage.pdf',
+        publicDisplay: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'cert-003',
+        certificationName: 'Leather Working Group (LWG) Gold Rated Facility',
+        vendorId: vApex.id,
+        status: 'VERIFIED',
+        verificationDate: '2025-04-20',
+        expiryDate: '2027-04-19',
+        documentUrl: '/uploads/certificates/lwg-gold-apex.pdf',
+        publicDisplay: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'cert-004',
+        certificationName: 'BSCI Social Accountability Code of Conduct',
+        vendorId: vStepRight.id,
+        status: 'VERIFIED',
+        verificationDate: '2025-09-01',
+        expiryDate: '2027-08-31',
+        documentUrl: '/uploads/certificates/bsci-stepright.pdf',
+        publicDisplay: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]
 
     // Main Categories
     const catBags: FallbackCategory = {
@@ -284,20 +386,26 @@ class DbFallbackStore {
       })
     })
 
-    // Seed Sample Initial Products in Bags
+    // -------------------------------------------------------------------------
+    // Products (Both Ready Wholesale & Custom Manufacturing)
+    // -------------------------------------------------------------------------
+
+    // P1: Both Ready & Custom Manufacturing
     const p1Id = 'prd-001'
     const p1: FallbackProduct = {
       id: p1Id,
       name: 'Tuffloom Pro Executive Laptop Backpack',
       slug: 'tuffloom-pro-executive-laptop-backpack',
       sku: 'TL-BP-EX01',
+      productType: 'BOTH',
+      styleCode: 'TL-BAG-0101',
       categoryId: catBags.id,
       subcategoryId: 'sub-bags-2', // Laptop Bags
       subcategory: 'Laptop Bags',
       vendorId: vApex.id,
       shortDescription: 'Water-resistant 15.6" ballistic nylon executive laptop backpack with USB port.',
       description:
-        'Engineered for modern professionals and corporate gifting. Features multi-compartment organizers, padded air-mesh back support, TSA lock compatibility, and reinforced stitching.',
+        'Engineered for modern professionals and corporate gifting. Features multi-compartment organizers, padded air-mesh back support, TSA lock compatibility, and reinforced stitching. Available for immediate wholesale bulk orders or customized OEM/Private Label manufacturing.',
       brand: 'Tuffloom',
       material: '1680D Ballistic Nylon',
       color: 'Charcoal Black',
@@ -313,6 +421,17 @@ class DbFallbackStore {
       status: 'ACTIVE',
       featured: true,
       isArchived: false,
+      indicativePriceMin: 8,
+      indicativePriceMax: 12,
+      indicativeCurrency: 'USD',
+      priceBasis: 'FOB Mumbai',
+      sampleAvailable: true,
+      samplePrice: 45,
+      customLogoAvailable: true,
+      privateLabelAvailable: true,
+      customPackagingAvailable: true,
+      customBarcodeAvailable: true,
+      qualityStandard: 'ANSI/ASQ Z1.4 — AQL 2.5',
       createdAt: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -379,12 +498,15 @@ class DbFallbackStore {
       },
     ]
 
+    // P2: Ready Wholesale Only
     const p2Id = 'prd-002'
     const p2: FallbackProduct = {
       id: p2Id,
       name: 'Heavy Duty Waterproof Canvas Duffle Bag',
       slug: 'heavy-duty-waterproof-canvas-duffle-bag',
       sku: 'TL-DF-HD02',
+      productType: 'READY_WHOLESALE',
+      styleCode: 'TL-BAG-0102',
       categoryId: catBags.id,
       subcategoryId: 'sub-bags-5', // Duffle Bags
       subcategory: 'Duffle Bags',
@@ -445,35 +567,49 @@ class DbFallbackStore {
       },
     ]
 
+    // P3: Custom Manufacturing Only: Full-Grain Leather Briefcase
     const p3Id = 'prd-003'
     const p3: FallbackProduct = {
       id: p3Id,
-      name: 'Ergonomic Waterproof Kids School Bag',
-      slug: 'ergonomic-waterproof-kids-school-bag',
-      sku: 'TL-SB-KD03',
+      name: 'Custom Handcrafted Leather Executive Briefcase',
+      slug: 'custom-handcrafted-leather-executive-briefcase',
+      sku: 'TL-LT-BF03',
+      productType: 'CUSTOM_MANUFACTURING',
+      styleCode: 'TL-BAG-0201',
       categoryId: catBags.id,
-      subcategoryId: 'sub-bags-3', // School Bags
-      subcategory: 'School Bags',
+      subcategoryId: 'sub-bags-2', // Laptop Bags
+      subcategory: 'Laptop Bags',
       vendorId: vApex.id,
-      shortDescription: 'Lightweight spine-protecting school backpack with high-visibility reflective strips.',
+      shortDescription: 'Bespoke full-grain vegetable-tanned leather briefcase tailored for luxury private labels.',
       description:
-        'Designed specifically for growing students. S-curve ergonomic shoulder straps, waterproof polyester fabric, and multiple stationery dividers.',
-      brand: 'Tuffloom',
-      material: 'Waterproof Polyester',
-      color: 'Navy Blue & Teal',
-      size: '24L',
-      weight: 0.75,
-      dimensions: '42 x 30 x 16 cm',
-      mrp: 999,
-      wholesalePrice: 380,
-      basePrice: 380,
+        'Manufactured to client exact specifications. Options include vegetable tanned full-grain cow leather, solid brass hardware, personalized debossed logos, custom jacquard inner lining, and bespoke retail luxury packaging boxes.',
+      brand: 'Tuffloom Private Label',
+      material: 'Full-Grain Cow Leather',
+      color: 'Cognac Brown / Saddle Tan / Black',
+      size: '16" Laptop Capacity',
+      weight: 1.6,
+      dimensions: '42 x 31 x 10 cm',
+      mrp: null,
+      wholesalePrice: 0,
+      basePrice: 0,
       gstPercent: 18,
-      moq: 50,
-      stock: 800,
+      moq: 100,
+      stock: 0,
       status: 'ACTIVE',
-      featured: false,
+      featured: true,
       isArchived: false,
-      createdAt: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+      indicativePriceMin: 24,
+      indicativePriceMax: 38,
+      indicativeCurrency: 'USD',
+      priceBasis: 'FOB Mumbai',
+      sampleAvailable: true,
+      samplePrice: 75,
+      customLogoAvailable: true,
+      privateLabelAvailable: true,
+      customPackagingAvailable: true,
+      customBarcodeAvailable: true,
+      qualityStandard: 'ANSI/ASQ Z1.4 — AQL 2.5',
+      createdAt: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
       updatedAt: new Date().toISOString(),
     }
 
@@ -481,39 +617,451 @@ class DbFallbackStore {
       {
         id: 'img-004',
         productId: p3Id,
-        url: 'https://images.unsplash.com/photo-1577733966973-d680bffd2e80?w=800&auto=format&fit=crop&q=80',
-        storagePath: 'products/schoolbag-front.jpg',
-        altText: 'Ergonomic School Backpack',
+        url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80',
+        storagePath: 'products/leather-briefcase.jpg',
+        altText: 'Custom Handcrafted Leather Briefcase',
         sortOrder: 0,
         isPrimary: true,
         createdAt: new Date().toISOString(),
       },
     ]
 
-    const p3Tiers: FallbackPriceTier[] = [
+    // P4: Custom Manufacturing: French Terry Heavyweight Hoodie
+    const p4Id = 'prd-004'
+    const p4: FallbackProduct = {
+      id: p4Id,
+      name: 'Custom 400 GSM French Terry Heavyweight Hoodie',
+      slug: 'custom-400-gsm-french-terry-heavyweight-hoodie',
+      sku: 'TL-HD-FT04',
+      productType: 'CUSTOM_MANUFACTURING',
+      styleCode: 'TL-APP-0301',
+      categoryId: catClothing.id,
+      subcategoryId: 'sub-clothing-6', // Hoodies
+      subcategory: 'Hoodies',
+      vendorId: vHeritage.id,
+      shortDescription: 'Luxury streetwear heavyweight custom hoodie with custom dye, puff print & embroidery.',
+      description:
+        'Crafted with 100% combed organic cotton 400 GSM French Terry. Supports custom Pantone dip-dye, high-density screen printing, 3D puff embroidery, woven neck labels, and custom hangtags.',
+      brand: 'Tuffloom Manufacturing',
+      material: '400 GSM 100% Combed Cotton French Terry',
+      color: 'Custom Pantone Matching',
+      size: 'XS - 4XL Custom Size Spec',
+      weight: 0.85,
+      dimensions: 'Custom Tech Pack Spec',
+      mrp: null,
+      wholesalePrice: 0,
+      basePrice: 0,
+      gstPercent: 12,
+      moq: 200,
+      stock: 0,
+      status: 'ACTIVE',
+      featured: true,
+      isArchived: false,
+      indicativePriceMin: 11,
+      indicativePriceMax: 17,
+      indicativeCurrency: 'USD',
+      priceBasis: 'FOB Tirupur',
+      sampleAvailable: true,
+      samplePrice: 35,
+      customLogoAvailable: true,
+      privateLabelAvailable: true,
+      customPackagingAvailable: true,
+      customBarcodeAvailable: true,
+      qualityStandard: 'ANSI/ASQ Z1.4 — AQL 2.5',
+      createdAt: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    const p4Images: FallbackProductImage[] = [
+      {
+        id: 'img-005',
+        productId: p4Id,
+        url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80',
+        storagePath: 'products/hoodie-front.jpg',
+        altText: 'Custom Heavyweight Hoodie',
+        sortOrder: 0,
+        isPrimary: true,
+        createdAt: new Date().toISOString(),
+      },
+    ]
+
+    // P5: Both: Goodyear Welted Leather Dress Shoes
+    const p5Id = 'prd-005'
+    const p5: FallbackProduct = {
+      id: p5Id,
+      name: 'Handcrafted Goodyear-Welted Leather Oxford Shoes',
+      slug: 'handcrafted-goodyear-welted-leather-oxford-shoes',
+      sku: 'TL-SH-OX05',
+      productType: 'BOTH',
+      styleCode: 'TL-SHOE-0205',
+      categoryId: catFootwear.id,
+      subcategoryId: 'sub-footwear-6', // Formal Shoes
+      subcategory: 'Formal Shoes',
+      vendorId: vStepRight.id,
+      shortDescription: 'Classic cap-toe oxford dress shoe with Italian calfskin and Goodyear welt construction.',
+      description:
+        'Benchmark quality for formal footwear brands. Full calf leather lining, Argentine leather sole, cork filler bed, and hand-finished burnishing. Available in ready stock for fast wholesale distribution and custom private label manufacturing with embossed brand logos.',
+      brand: 'Tuffloom',
+      material: 'Imported Full-Grain Calfskin Leather',
+      color: 'Burnished Tan / Midnight Black',
+      size: 'UK 6 - 12',
+      weight: 1.2,
+      dimensions: '32 x 20 x 12 cm',
+      mrp: 4999,
+      wholesalePrice: 1850,
+      basePrice: 1850,
+      gstPercent: 18,
+      moq: 25,
+      stock: 120,
+      status: 'ACTIVE',
+      featured: true,
+      isArchived: false,
+      indicativePriceMin: 28,
+      indicativePriceMax: 42,
+      indicativeCurrency: 'USD',
+      priceBasis: 'FOB Agra',
+      sampleAvailable: true,
+      samplePrice: 85,
+      customLogoAvailable: true,
+      privateLabelAvailable: true,
+      customPackagingAvailable: true,
+      customBarcodeAvailable: true,
+      qualityStandard: 'ANSI/ASQ Z1.4 — AQL 2.5',
+      createdAt: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    const p5Images: FallbackProductImage[] = [
+      {
+        id: 'img-006',
+        productId: p5Id,
+        url: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800&auto=format&fit=crop&q=80',
+        storagePath: 'products/oxford-shoes.jpg',
+        altText: 'Goodyear Welted Oxford Shoes',
+        sortOrder: 0,
+        isPrimary: true,
+        createdAt: new Date().toISOString(),
+      },
+    ]
+
+    const p5Tiers: FallbackPriceTier[] = [
       {
         id: 'tier-007',
-        productId: p3Id,
-        minQty: 50,
-        maxQty: 99,
-        pricePerUnit: 360,
+        productId: p5Id,
+        minQty: 25,
+        maxQty: 49,
+        pricePerUnit: 1750,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       {
         id: 'tier-008',
-        productId: p3Id,
-        minQty: 100,
+        productId: p5Id,
+        minQty: 50,
         maxQty: null,
-        pricePerUnit: 330,
+        pricePerUnit: 1620,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
     ]
 
-    this.products.push(p1, p2, p3)
-    this.images.push(...p1Images, ...p2Images, ...p3Images)
-    this.priceTiers.push(...p1Tiers, ...p2Tiers, ...p3Tiers)
+    this.products.push(p1, p2, p3, p4, p5)
+    this.images.push(...p1Images, ...p2Images, ...p3Images, ...p4Images, ...p5Images)
+    this.priceTiers.push(...p1Tiers, ...p2Tiers, ...p5Tiers)
+
+    // -------------------------------------------------------------------------
+    // Phase 3 Seed Records: Quotations, Samples, Manufacturing Orders
+    // -------------------------------------------------------------------------
+
+    // Sample Quotation for Rahul Sharma
+    const q1: Quotation = {
+      id: 'qt-001',
+      quotationNumber: 'QT-2026-0041',
+      customerId: 'usr-customer-001',
+      customer: {
+        id: 'usr-customer-001',
+        name: 'Rahul Sharma',
+        email: 'customer@example.com',
+        businessName: 'Sharma Retailers',
+        phone: '9876543211',
+      },
+      productId: p1Id,
+      product: {
+        ...p1,
+        images: p1Images,
+        quantityPricing: p1Tiers,
+      },
+      categoryId: catBags.id,
+      styleCodeSnapshot: 'TL-BAG-0101',
+      quantity: 1000,
+      targetPrice: 9.0,
+      targetCurrency: 'USD',
+      material: '1680D Ballistic Nylon',
+      materialSpecification: 'PU water-repellent coating, heavy YKK #8 zippers',
+      gsm: '320 GSM',
+      color: 'Matte Charcoal & Silver Accent',
+      designRequirement: 'Custom debossed leather logo patch on front pocket and branded rubber zipper pullers.',
+      dimensions: '48 x 33 x 18 cm',
+      sizeRequirements: '32 Liter standard volume with padded 15.6" laptop sleeve',
+      customLogoRequired: true,
+      privateLabelRequired: true,
+      customLabelRequired: true,
+      packagingRequired: true,
+      barcodeRequired: true,
+      brandName: 'Apex Nomad',
+      logoFileUrl: '/uploads/tech-packs/apex-nomad-logo.png',
+      packagingInstructions: 'Individual recyclable polybag with printed SKU barcode sticker; 20 units per 5-ply export carton.',
+      labelInstructions: 'Custom woven damask neck label stitched inside main compartment.',
+      additionalInstructions: 'Reinforced bar-tack stitching on shoulder strap anchor points.',
+      targetDeliveryDate: new Date(Date.now() + 3600000 * 24 * 45).toISOString(),
+      destinationCountry: 'United States',
+      destinationCity: 'New York',
+      destinationPort: 'Port of New York / Newark',
+      tradeTerm: 'FOB',
+      originPort: 'Nhava Sheva, Mumbai',
+      notes: 'Urgent autumn corporate gift release. Sample needed first.',
+      adminNotes: 'Supplier Apex Leather confirmed $6.80 factory cost. Tuffloom margin $1.70. High reliability partner.',
+      unitPriceQuoted: 8.5,
+      setupCostQuoted: 120,
+      sampleCostQuoted: 45,
+      estimatedLeadDaysQuoted: 35,
+      paymentTermsQuoted: '30% Advance Deposit on PO Confirmation, 70% Balance against Bill of Lading & Inspection Pass Certificate',
+      validUntil: new Date(Date.now() + 3600000 * 24 * 30).toISOString(),
+      status: 'QUOTATION_SENT',
+      createdAt: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+      updatedAt: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+      files: [
+        {
+          id: 'qf-001',
+          quotationId: 'qt-001',
+          fileName: 'Apex-Nomad-TechPack-v2.pdf',
+          storagePath: 'tech-packs/Apex-Nomad-TechPack-v2.pdf',
+          fileType: 'application/pdf',
+          fileSize: 4250000,
+          uploadedBy: 'Rahul Sharma',
+          isPublic: false,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      messages: [
+        {
+          id: 'qm-001',
+          quotationId: 'qt-001',
+          senderId: 'usr-customer-001',
+          senderType: 'CUSTOMER',
+          message: 'Can we expedite prototype sampling within 7 business days?',
+          createdAt: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+        },
+        {
+          id: 'qm-002',
+          quotationId: 'qt-001',
+          senderId: 'usr-admin-001',
+          senderType: 'ADMIN',
+          message: 'Yes Rahul! We have pre-sourced the 1680D nylon. Sample can dispatch in 5 days once confirmed.',
+          createdAt: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+        },
+      ],
+    }
+
+    // Seed Prototype Sample Order for Rahul Sharma
+    const smp1: SampleOrder = {
+      id: 'smp-001',
+      sampleNumber: 'SMP-2026-0012',
+      quotationId: 'qt-001',
+      customerId: 'usr-customer-001',
+      customer: {
+        id: 'usr-customer-001',
+        name: 'Rahul Sharma',
+        email: 'customer@example.com',
+        businessName: 'Sharma Retailers',
+      },
+      productId: p1Id,
+      styleCode: 'TL-BAG-0101',
+      quantity: 1,
+      samplePrice: 45,
+      currency: 'USD',
+      shippingDestination: 'Suite 400, 350 5th Ave, New York, NY 10118, USA',
+      shippingCharge: 25,
+      total: 70,
+      paymentStatus: 'PAID',
+      sampleStatus: 'DISPATCHED',
+      trackingNumber: 'DHL-9921448201',
+      courier: 'DHL Express International Priority',
+      customerFeedback: 'Awaiting arrival to review stitch tension and debossed logo depth.',
+      photos: [
+        'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800',
+        'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800',
+      ],
+      createdAt: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+      updatedAt: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+    }
+
+    // Seed Manufacturing Order for Rahul Sharma (In Active Production)
+    const mfg1Id = 'mfg-001'
+    const mfg1: ManufacturingOrder = {
+      id: mfg1Id,
+      manufacturingOrderNumber: 'TL-MFG-00031',
+      quotationId: 'qt-001',
+      customerId: 'usr-customer-001',
+      customer: {
+        id: 'usr-customer-001',
+        name: 'Rahul Sharma',
+        email: 'customer@example.com',
+        businessName: 'Sharma Retailers',
+        phone: '9876543211',
+      },
+      productId: p1Id,
+      vendorId: vApex.id, // Strictly internal
+      vendor: vApex, // Filtered out before sending to customer
+      styleCode: 'TL-BAG-0101',
+      quantity: 1000,
+      material: '1680D Ballistic Nylon',
+      materialSpecification: 'PU water-repellent coating, heavy YKK #8 zippers',
+      gsm: '320 GSM',
+      color: 'Charcoal Black & Silver Accent',
+      designRequirement: 'Debossed leather logo patch on front pocket and custom rubber pullers.',
+      customLogo: true,
+      privateLabel: true,
+      packaging: true,
+      barcode: true,
+      destinationCountry: 'United States',
+      destinationPort: 'Port of New York / Newark',
+      tradeTerm: 'FOB',
+      paymentTerms: '30% Advance ($2,550), 70% Pre-Dispatch ($5,950)',
+      targetDeliveryDate: new Date(Date.now() + 3600000 * 24 * 30).toISOString(),
+      unitPrice: 8.5,
+      totalAmount: 8500,
+      advancePaid: 2550,
+      balanceDue: 5950,
+      status: 'IN_PRODUCTION',
+      currentStage: 'PRODUCTION_IN_PROGRESS',
+      progressPercent: 55,
+      createdAt: new Date(Date.now() - 3600000 * 24 * 15).toISOString(),
+      updatedAt: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+      stageLogs: [
+        {
+          id: 'log-001',
+          manufacturingOrderId: mfg1Id,
+          stage: 'ORDER_CONFIRMED',
+          title: 'Order Confirmed & Advance Cleared',
+          description: '30% advance deposit verified. Production slot locked with manufacturing facility.',
+          isCompleted: true,
+          updatedBy: 'Admin',
+          timestamp: new Date(Date.now() - 3600000 * 24 * 15).toISOString(),
+        },
+        {
+          id: 'log-002',
+          manufacturingOrderId: mfg1Id,
+          stage: 'MATERIAL_SOURCED',
+          title: '1680D Ballistic Nylon & Hardware Sourced',
+          description: 'Fabric batch passed tensile and hydrostatic water-resistance lab testing.',
+          isCompleted: true,
+          photos: ['https://images.unsplash.com/photo-1544816155-12df9643f363?w=800'],
+          updatedBy: 'Production Team',
+          timestamp: new Date(Date.now() - 3600000 * 24 * 11).toISOString(),
+        },
+        {
+          id: 'log-003',
+          manufacturingOrderId: mfg1Id,
+          stage: 'CUTTING_DONE',
+          title: 'Precision Die Cutting Completed',
+          description: 'All 1,000 unit pattern sets, strap liners, and internal organizer panels cut.',
+          isCompleted: true,
+          photos: ['https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800'],
+          updatedBy: 'Production Team',
+          timestamp: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+        },
+        {
+          id: 'log-004',
+          manufacturingOrderId: mfg1Id,
+          stage: 'PRODUCTION_IN_PROGRESS',
+          title: 'Assembly & Bar-Tack Stitching in Progress',
+          description: 'Main body assembly running across 3 lines. Custom brand patches being stitched.',
+          isCompleted: false,
+          photos: ['https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800'],
+          updatedBy: 'QC Lead',
+          timestamp: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+        },
+        {
+          id: 'log-005',
+          manufacturingOrderId: mfg1Id,
+          stage: 'IN_LINE_INSPECTION_30',
+          title: '30% In-Line Quality Audit Scheduled',
+          description: 'Scheduled for inspection on assembly line.',
+          isCompleted: false,
+          updatedBy: 'QC Lead',
+          timestamp: new Date(Date.now() + 3600000 * 24 * 3).toISOString(),
+        },
+      ],
+      inspections: [
+        {
+          id: 'insp-001',
+          inspectionNumber: 'QC-AQL-2026-081',
+          manufacturingOrderId: mfg1Id,
+          inspectorName: 'Anil Verma (Senior Quality Assurance Lead)',
+          inspectionDate: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+          aqlStandard: 'ANSI/ASQ Z1.4 — AQL 2.5 Normal Single Sampling',
+          totalChecked: 125,
+          totalPassed: 123,
+          totalDefective: 2,
+          defectDetails: {
+            minor: 2,
+            major: 0,
+            critical: 0,
+            notes: 'Minor thread ends trimmed immediately on line. Zero structural defects.',
+          },
+          status: 'PASSED',
+          reportFileUrl: '/uploads/inspections/AQL25-Report-TL-MFG-00031.pdf',
+          photos: ['https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+    }
+
+    this.quotations.push(q1)
+    this.sampleOrders.push(smp1)
+    this.manufacturingOrders.push(mfg1)
+
+    // Ready Wholesale Order for Rahul Sharma (to test unified My Account)
+    const o1: Order = {
+      id: 'ord-001',
+      orderNumber: 'ORD-2026-1001',
+      items: [
+        {
+          id: 'item-001',
+          productName: 'Heavy Duty Waterproof Canvas Duffle Bag',
+          productSku: 'TL-DF-HD02',
+          unitPrice: 740,
+          gstPercent: 18,
+          quantity: 20,
+          totalPrice: 14800,
+        },
+      ],
+      subtotal: 14800,
+      gstAmount: 2664,
+      shippingAmount: 450,
+      grandTotal: 17914,
+      status: 'DELIVERED',
+      paymentStatus: 'PAID',
+      createdAt: new Date(Date.now() - 3600000 * 24 * 20).toISOString(),
+      billingAddressSnapshot: {
+        name: 'Rahul Sharma',
+        company: 'Sharma Retailers',
+        line1: 'Shop 14, Commercial Plaza',
+        city: 'Jaipur',
+        state: 'Rajasthan',
+        pincode: '302001',
+      },
+      shippingAddressSnapshot: {
+        name: 'Rahul Sharma',
+        line1: 'Shop 14, Commercial Plaza',
+        city: 'Jaipur',
+        state: 'Rajasthan',
+        pincode: '302001',
+      },
+    }
+    this.orders.push(o1)
   }
 
   findUserByEmail(email: string) {

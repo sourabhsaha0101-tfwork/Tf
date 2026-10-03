@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const categorySlug = searchParams.get('category') || ''
     const subcategorySlug = searchParams.get('subcategory') || ''
+    const productType = searchParams.get('productType') || ''
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '12', 10)
     const sort = searchParams.get('sort') || 'newest'
@@ -15,6 +16,7 @@ export async function GET(request: NextRequest) {
       search,
       categorySlug,
       subcategorySlug,
+      productType,
       page,
       limit,
       sort,

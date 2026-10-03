@@ -120,25 +120,55 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Quick Launchpad Banner */}
-        <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/20 uppercase tracking-wider">
-              Phase 2 Active
-            </span>
-            <h2 className="text-xl font-extrabold tracking-tight">Product & Category Management Live</h2>
-            <p className="text-white/80 text-xs max-w-xl">
-              Create and manage wholesale products with tiered quantity pricing, multi-image management, dynamic categories, and server-side authorization.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href="/admin/products"
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-white text-orange-600 hover:bg-orange-50 transition-colors shadow-sm"
-            >
-              Browse All Products
-            </Link>
-          </div>
+        {/* Phase 3 Dual-Engine Launchpad */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link
+            href="/admin/quotations"
+            className="p-5 bg-purple-50 border border-purple-200 rounded-2xl space-y-2 hover:border-purple-400 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-bold text-purple-700">Contract RFQs</span>
+              <ArrowRight className="w-4 h-4 text-purple-600 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h4 className="text-base font-black text-gray-900">Custom Quotations</h4>
+            <p className="text-[11px] text-gray-600">Review tech packs, set lead times, and convert quotes to manufacturing orders.</p>
+          </Link>
+
+          <Link
+            href="/admin/manufacturing"
+            className="p-5 bg-orange-50 border border-orange-200 rounded-2xl space-y-2 hover:border-orange-400 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-bold text-orange-700">Production Engine</span>
+              <ArrowRight className="w-4 h-4 text-orange-600 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h4 className="text-base font-black text-gray-900">11-Stage Production</h4>
+            <p className="text-[11px] text-gray-600">Update factory milestones, upload verified photos, and manage ocean/air dispatch.</p>
+          </Link>
+
+          <Link
+            href="/admin/samples"
+            className="p-5 bg-blue-50 border border-blue-200 rounded-2xl space-y-2 hover:border-blue-400 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-bold text-blue-700">Prototype Labs</span>
+              <ArrowRight className="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h4 className="text-base font-black text-gray-900">Sample Orders</h4>
+            <p className="text-[11px] text-gray-600">Track physical prototype samples, payment verifications, and courier dispatches.</p>
+          </Link>
+
+          <Link
+            href="/admin/inspections"
+            className="p-5 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2 hover:border-emerald-400 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-bold text-emerald-700">Quality Assurance</span>
+              <ArrowRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h4 className="text-base font-black text-gray-900">AQL 2.5 Inspections</h4>
+            <p className="text-[11px] text-gray-600">Log ANSI/ASQ Z1.4 pre-shipment defect audits and publish PDF certificates.</p>
+          </Link>
         </div>
 
         {/* Recent Products Table */}

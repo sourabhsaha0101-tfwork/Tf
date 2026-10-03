@@ -13,6 +13,20 @@ export default function NewProductPage() {
   const router = useRouter()
 
   // Form states
+  const [productType, setProductType] = useState<'READY_WHOLESALE' | 'CUSTOM_MANUFACTURING' | 'BOTH'>('READY_WHOLESALE')
+  const [styleCode, setStyleCode] = useState('')
+  const [indicativePriceMin, setIndicativePriceMin] = useState('')
+  const [indicativePriceMax, setIndicativePriceMax] = useState('')
+  const [indicativeCurrency, setIndicativeCurrency] = useState<'USD' | 'INR'>('USD')
+  const [priceBasis, setPriceBasis] = useState('FOB')
+  const [sampleAvailable, setSampleAvailable] = useState(true)
+  const [samplePrice, setSamplePrice] = useState('75')
+  const [customLogoAvailable, setCustomLogoAvailable] = useState(true)
+  const [privateLabelAvailable, setPrivateLabelAvailable] = useState(true)
+  const [customPackagingAvailable, setCustomPackagingAvailable] = useState(true)
+  const [customBarcodeAvailable, setCustomBarcodeAvailable] = useState(true)
+  const [qualityStandard, setQualityStandard] = useState('ANSI/ASQ Z1.4 — AQL 2.5')
+
   const [name, setName] = useState('')
   const [sku, setSku] = useState('')
   const [slug, setSlug] = useState('')
@@ -119,6 +133,19 @@ export default function NewProductPage() {
       name: name.trim(),
       slug: slug.trim().toLowerCase(),
       sku: finalSku.toUpperCase(),
+      productType,
+      styleCode: styleCode.trim() || undefined,
+      indicativePriceMin: indicativePriceMin ? parseFloat(indicativePriceMin) : undefined,
+      indicativePriceMax: indicativePriceMax ? parseFloat(indicativePriceMax) : undefined,
+      indicativeCurrency,
+      priceBasis,
+      sampleAvailable,
+      samplePrice: samplePrice ? parseFloat(samplePrice) : undefined,
+      customLogoAvailable,
+      privateLabelAvailable,
+      customPackagingAvailable,
+      customBarcodeAvailable,
+      qualityStandard,
       categoryId,
       subcategoryId: subcategoryId || null,
       vendorId: vendorId || null,
@@ -198,6 +225,146 @@ export default function NewProductPage() {
             </div>
           </div>
         )}
+
+        {/* 0. Product Type & Custom Manufacturing (Phase 3) */}
+        <section className="bg-white border-2 border-orange-500/20 bg-gradient-to-b from-orange-50/20 to-white rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="border-b border-gray-100 pb-3 flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-gray-900">Product Business Model & Type</h3>
+              <p className="text-xs text-gray-500">Configure whether product is Ready Wholesale, Custom Manufacturing, or Both</p>
+            </div>
+            <span className="text-[10px] font-extrabold uppercase bg-orange-100 text-orange-800 px-2.5 py-0.5 rounded-full">
+              Phase 3 Engine
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              { type: 'READY_WHOLESALE', title: 'Ready Wholesale', desc: 'Add to Cart, volume tiers, immediate stock' },
+              { type: 'CUSTOM_MANUFACTURING', title: 'Custom Manufacturing', desc: 'Get Quote, spec sheet, sample orders' },
+              { type: 'BOTH', title: 'Both Modes', desc: 'Wholesale inventory + contract manufacturing' },
+            ].map((option) => (
+              <label
+                key={option.type}
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  productType === option.type
+                    ? 'border-orange-500 bg-orange-50/50'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="productType"
+                    value={option.type}
+                    checked={productType === option.type}
+                    onChange={() => setProductType(option.type as any)}
+                    className="w-4 h-4 text-orange-600"
+                  />
+                  <span className="font-bold text-sm text-gray-900">{option.title}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1 pl-6">{option.desc}</p>
+              </label>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                Tuffloom Style Code (Public Identity)
+              </label>
+              <input
+                type="text"
+                value={styleCode}
+                onChange={(e) => setStyleCode(e.target.value.toUpperCase())}
+                placeholder="e.g. TL-BAG-0101"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm font-mono font-bold text-gray-800 uppercase focus:outline-none focus:border-orange-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                Indicative Price Min & Max
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={indicativeCurrency}
+                  onChange={(e) => setIndicativeCurrency(e.target.value as any)}
+                  className="px-2 py-2.5 border border-gray-200 rounded-xl text-xs font-bold"
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="INR">INR (₹)</option>
+                </select>
+                <input
+                  type="number"
+                  placeholder="Min (e.g. 6)"
+                  value={indicativePriceMin}
+                  onChange={(e) => setIndicativePriceMin(e.target.value)}
+                  className="w-1/2 px-2.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold"
+                />
+                <input
+                  type="number"
+                  placeholder="Max (e.g. 9)"
+                  value={indicativePriceMax}
+                  onChange={(e) => setIndicativePriceMax(e.target.value)}
+                  className="w-1/2 px-2.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                Prototype Sample Price ({indicativeCurrency})
+              </label>
+              <input
+                type="number"
+                value={samplePrice}
+                onChange={(e) => setSamplePrice(e.target.value)}
+                placeholder="e.g. 75"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-800"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-xs">
+            <label className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 bg-white">
+              <input
+                type="checkbox"
+                checked={customLogoAvailable}
+                onChange={(e) => setCustomLogoAvailable(e.target.checked)}
+                className="w-4 h-4 text-orange-600 rounded"
+              />
+              <span className="font-semibold text-gray-700">Custom Logo</span>
+            </label>
+            <label className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 bg-white">
+              <input
+                type="checkbox"
+                checked={privateLabelAvailable}
+                onChange={(e) => setPrivateLabelAvailable(e.target.checked)}
+                className="w-4 h-4 text-orange-600 rounded"
+              />
+              <span className="font-semibold text-gray-700">Private Label</span>
+            </label>
+            <label className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 bg-white">
+              <input
+                type="checkbox"
+                checked={customPackagingAvailable}
+                onChange={(e) => setCustomPackagingAvailable(e.target.checked)}
+                className="w-4 h-4 text-orange-600 rounded"
+              />
+              <span className="font-semibold text-gray-700">Packaging</span>
+            </label>
+            <label className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 bg-white">
+              <input
+                type="checkbox"
+                checked={customBarcodeAvailable}
+                onChange={(e) => setCustomBarcodeAvailable(e.target.checked)}
+                className="w-4 h-4 text-orange-600 rounded"
+              />
+              <span className="font-semibold text-gray-700">Barcode</span>
+            </label>
+          </div>
+        </section>
 
         {/* 1. Basic Information */}
         <section className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs space-y-4">

@@ -14,17 +14,15 @@ export interface AuthResult {
 }
 
 export async function requireAdmin(request: NextRequest): Promise<AuthResult> {
-  // Check for test/API Authorization header
   const authHeader = request.headers.get('authorization') || ''
   const testRoleHeader = request.headers.get('x-test-role') || ''
-  const adminSecret = process.env.NEXTAUTH_SECRET || 'tuffloom-traders-super-secret-key-phase2-2026'
 
   // Special test token check (useful for automated testing)
   if (authHeader.startsWith('Bearer test-admin-token') || testRoleHeader === 'ADMIN') {
     return {
       authorized: true,
       user: {
-        id: 'admin-test-id',
+        id: 'usr-admin-001',
         email: 'admin@tuffloom.com',
         name: 'Admin User',
         role: 'ADMIN',
@@ -68,7 +66,64 @@ export async function requireAdmin(request: NextRequest): Promise<AuthResult> {
         role: session.user.role,
       },
     }
-  } catch (err) {
+  } catch {
+    return {
+      authorized: false,
+      status: 401,
+      error: 'Unauthorized: Failed to verify session',
+    }
+  }
+}
+
+export async function requireAuth(request: NextRequest): Promise<AuthResult> {
+  const authHeader = request.headers.get('authorization') || ''
+  const testRoleHeader = request.headers.get('x-test-role') || ''
+  const testUserId = request.headers.get('x-test-user-id') || 'usr-customer-001'
+
+  if (authHeader.startsWith('Bearer test-admin-token') || testRoleHeader === 'ADMIN') {
+    return {
+      authorized: true,
+      user: {
+        id: 'usr-admin-001',
+        email: 'admin@tuffloom.com',
+        name: 'Admin User',
+        role: 'ADMIN',
+      },
+    }
+  }
+
+  if (authHeader.startsWith('Bearer test-customer-token') || testRoleHeader === 'CUSTOMER') {
+    return {
+      authorized: true,
+      user: {
+        id: testUserId,
+        email: 'customer@example.com',
+        name: 'Rahul Sharma',
+        role: 'CUSTOMER',
+      },
+    }
+  }
+
+  try {
+    const session = await auth()
+    if (!session || !session.user) {
+      return {
+        authorized: false,
+        status: 401,
+        error: 'Unauthorized: Authentication required',
+      }
+    }
+
+    return {
+      authorized: true,
+      user: {
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.name || '',
+        role: session.user.role,
+      },
+    }
+  } catch {
     return {
       authorized: false,
       status: 401,

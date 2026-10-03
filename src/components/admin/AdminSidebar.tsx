@@ -8,7 +8,10 @@ import {
   Package,
   FolderTree,
   ShoppingBag,
-  Users,
+  FileCheck,
+  FlaskConical,
+  Factory,
+  ShieldCheck,
   Building2,
   CreditCard,
   Truck,
@@ -28,18 +31,25 @@ interface AdminSidebarProps {
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname()
 
-  const navItems = [
+  const catalogItems = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, status: 'ready' },
     { label: 'Products', href: '/admin/products', icon: Package, status: 'ready' },
     { label: 'Categories', href: '/admin/categories', icon: FolderTree, status: 'ready' },
-    { label: 'Orders', href: '#', icon: ShoppingBag, status: 'coming_soon' },
-    { label: 'Customers', href: '#', icon: Users, status: 'coming_soon' },
-    { label: 'Vendors', href: '#', icon: Building2, status: 'coming_soon' },
+    { label: 'Wholesale Orders', href: '/admin/orders', icon: ShoppingBag, status: 'ready' },
+  ]
+
+  const manufacturingItems = [
+    { label: 'Quotations & RFQs', href: '/admin/quotations', icon: FileCheck, status: 'ready' },
+    { label: 'Sample Orders', href: '/admin/samples', icon: FlaskConical, status: 'ready' },
+    { label: 'Manufacturing Orders', href: '/admin/manufacturing', icon: Factory, status: 'ready' },
+    { label: 'AQL 2.5 Inspections', href: '/admin/inspections', icon: ShieldCheck, status: 'ready' },
+  ]
+
+  const operationsItems = [
+    { label: 'Vendors / Factories', href: '#', icon: Building2, status: 'coming_soon' },
     { label: 'Payments', href: '#', icon: CreditCard, status: 'coming_soon' },
     { label: 'Shipments', href: '#', icon: Truck, status: 'coming_soon' },
     { label: 'Invoices', href: '#', icon: FileText, status: 'coming_soon' },
-    { label: 'Reports', href: '#', icon: BarChart3, status: 'coming_soon' },
-    { label: 'Settings', href: '#', icon: Settings, status: 'coming_soon' },
   ]
 
   const isActive = (href: string) => {
@@ -51,13 +61,61 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
     window.location.href = '/admin/login'
   }
 
+  const renderNavGroup = (title: string, items: typeof catalogItems) => (
+    <div className="space-y-1 mb-4">
+      <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+        {title}
+      </div>
+      {items.map((item) => {
+        const Icon = item.icon
+        const active = isActive(item.href)
+
+        if (item.status === 'coming_soon') {
+          return (
+            <div
+              key={item.label}
+              className="flex items-center justify-between px-3 py-2 rounded-lg text-xs text-gray-400 cursor-not-allowed group opacity-75 select-none"
+            >
+              <div className="flex items-center gap-2.5">
+                <Icon className="w-4 h-4 text-gray-400" />
+                <span>{item.label}</span>
+              </div>
+              <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                Soon
+              </span>
+            </div>
+          )
+        }
+
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            onClick={onClose}
+            className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+              active
+                ? 'bg-orange-50 text-orange-600 shadow-xs'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Icon className={`w-4 h-4 ${active ? 'text-orange-600' : 'text-gray-500'}`} />
+              <span>{item.label}</span>
+            </div>
+            {active && <span className="w-1.5 h-3.5 rounded-full bg-orange-600"></span>}
+          </Link>
+        )
+      })}
+    </div>
+  )
+
   return (
     <>
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden transition-opacity"
         />
       )}
 
@@ -94,51 +152,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
         </div>
 
         {/* Navigation List */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-          <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-            Catalog & Ops
+        <div className="flex-1 overflow-y-auto px-3 py-4">
+          {renderNavGroup('Ready Wholesale', catalogItems)}
+          {renderNavGroup('Custom Manufacturing (Phase 3)', manufacturingItems)}
+          {renderNavGroup('Operations', operationsItems)}
+
+          <div className="pt-2 px-3">
+            <Link
+              href="/"
+              target="_blank"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-gray-500 hover:text-orange-600 hover:bg-orange-50/50 transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Visit Customer Storefront</span>
+            </Link>
           </div>
-
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const active = isActive(item.href)
-
-            if (item.status === 'coming_soon') {
-              return (
-                <div
-                  key={item.label}
-                  className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-gray-400 cursor-not-allowed group opacity-75 select-none"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 text-gray-400" />
-                    <span>{item.label}</span>
-                  </div>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                    Soon
-                  </span>
-                </div>
-              )
-            }
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={onClose}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                  active
-                    ? 'bg-orange-50 text-orange-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${active ? 'text-orange-600' : 'text-gray-500'}`} />
-                  <span>{item.label}</span>
-                </div>
-                {active && <span className="w-1.5 h-4 rounded-full bg-orange-600"></span>}
-              </Link>
-            )
-          })}
         </div>
 
         {/* Footer User Profile & Logout */}
