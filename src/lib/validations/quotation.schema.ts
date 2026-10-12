@@ -16,7 +16,7 @@ export const quotationRequestSchema = z.object({
   designRequirement: z.string().trim().max(2000).optional().nullable(),
   dimensions: z.string().trim().max(200).optional().nullable(),
   sizeRequirements: z.string().trim().max(200).optional().nullable(),
-  
+
   // Branding & Private Label
   customLogoRequired: z.boolean().default(false),
   privateLabelRequired: z.boolean().default(false),
@@ -28,7 +28,7 @@ export const quotationRequestSchema = z.object({
   packagingInstructions: z.string().trim().max(1000).optional().nullable(),
   labelInstructions: z.string().trim().max(1000).optional().nullable(),
   additionalInstructions: z.string().trim().max(2000).optional().nullable(),
-  
+
   // Delivery & Trade terms
   targetDeliveryDate: z.string().optional().nullable(),
   destinationCountry: z.string().trim().min(2, 'Destination country is required'),
