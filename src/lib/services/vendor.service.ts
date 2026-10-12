@@ -1,16 +1,24 @@
 import { prisma } from '@/lib/prisma'
 import { dbFallback } from '@/lib/db-fallback'
-import { Vendor } from '@/types'
+import { Vendor, UserRole } from '@/types'
+import { maskVendorForRole, isClient } from '@/lib/auth-guard'
 
 export const vendorService = {
-  async getVendors(): Promise<Vendor[]> {
+  async getVendors(requestingRole: UserRole = 'ADMIN'): Promise<Vendor[]> {
+    // Clients/Customers have zero clearance to view factory vendors
+    if (isClient(requestingRole)) {
+      return []
+    }
+
+    let vendors: Vendor[] = []
+
     try {
-      const vendors = await prisma.vendor.findMany({
+      const dbVendors = await prisma.vendor.findMany({
         where: { status: 'ACTIVE' },
         orderBy: { companyName: 'asc' },
       })
-      if (vendors && vendors.length > 0) {
-        return vendors.map((v: any) => ({
+      if (dbVendors && dbVendors.length > 0) {
+        vendors = dbVendors.map((v: any) => ({
           ...v,
           status: v.status as 'ACTIVE' | 'INACTIVE' | 'PENDING',
           createdAt: v.createdAt.toISOString(),
@@ -19,18 +27,29 @@ export const vendorService = {
       }
     } catch {
       // Fallback
+      vendors = dbFallback.vendors.filter((v) => v.status === 'ACTIVE')
     }
 
-    return dbFallback.vendors.filter((v) => v.status === 'ACTIVE')
+    if (vendors.length === 0) {
+      vendors = dbFallback.vendors.filter((v) => v.status === 'ACTIVE')
+    }
+
+    return vendors.map((v) => maskVendorForRole(v, requestingRole)!).filter(Boolean)
   },
 
-  async getVendorById(id: string): Promise<Vendor | null> {
+  async getVendorById(id: string, requestingRole: UserRole = 'ADMIN'): Promise<Vendor | null> {
+    if (isClient(requestingRole)) {
+      return null
+    }
+
+    let vendor: Vendor | null = null
+
     try {
       const v = await prisma.vendor.findUnique({
         where: { id },
       })
       if (v) {
-        return {
+        vendor = {
           ...v,
           status: v.status as 'ACTIVE' | 'INACTIVE' | 'PENDING',
           createdAt: v.createdAt.toISOString(),
@@ -39,8 +58,13 @@ export const vendorService = {
       }
     } catch {
       // Fallback
+      vendor = dbFallback.vendors.find((v) => v.id === id) || null
     }
 
-    return dbFallback.vendors.find((v) => v.id === id) || null
+    if (!vendor) {
+      vendor = dbFallback.vendors.find((v) => v.id === id) || null
+    }
+
+    return maskVendorForRole(vendor, requestingRole)
   },
 }

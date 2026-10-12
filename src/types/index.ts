@@ -1,4 +1,4 @@
-export type UserRole = 'CUSTOMER' | 'ADMIN'
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'EMPLOYEE' | 'CLIENT' | 'CUSTOMER'
 
 export interface NavItem {
   label: string
@@ -482,3 +482,90 @@ export interface CustomerInvoiceRecord {
   invoiceDate: string
   items: Array<{ name: string; quantity: number; unitPrice: number; total: number }>
 }
+
+// ----------------------------------------------------
+// PHASE 3: EMPLOYEE OPERATIONS & RBAC INTERFACES
+// ----------------------------------------------------
+
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
+export interface EmployeeTask {
+  id: string
+  title: string
+  description?: string | null
+  assignedToId: string
+  assignedToName?: string | null
+  createdById: string
+  createdByName?: string | null
+  status: TaskStatus
+  priority: TaskPriority
+  dueDate?: string | null
+  relatedEntityType?: 'MANUFACTURING_ORDER' | 'QUOTATION' | 'INSPECTION' | 'PRODUCT' | 'GENERAL'
+  relatedEntityId?: string | null
+  completedAt?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'HALF_DAY' | 'ON_LEAVE'
+
+export interface AttendanceRecord {
+  id: string
+  employeeId: string
+  employeeName?: string | null
+  date: string // YYYY-MM-DD
+  checkInTime?: string | null
+  checkOutTime?: string | null
+  status: AttendanceStatus
+  notes?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DailyProgressSummary {
+  id: string
+  employeeId: string
+  employeeName?: string | null
+  date: string // YYYY-MM-DD
+  summaryText: string
+  tasksCompletedCount: number
+  ordersWorkedOn?: string[] | null
+  hoursLogged: number
+  blockers?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AuditLog {
+  id: string
+  actorId: string
+  actorName?: string | null
+  actorRole: UserRole
+  action: string
+  entityType: string
+  entityId: string
+  details?: Record<string, unknown> | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  timestamp: string
+}
+
+export interface ProductivityReport {
+  period: string
+  totalEmployees: number
+  totalTasksAssigned: number
+  totalTasksCompleted: number
+  overallCompletionRate: number
+  totalHoursLogged: number
+  employeeSummaries: Array<{
+    employeeId: string
+    employeeName: string
+    tasksAssigned: number
+    tasksCompleted: number
+    completionRate: number
+    hoursLogged: number
+    attendanceDays: number
+  }>
+}
+

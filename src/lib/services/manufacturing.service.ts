@@ -10,8 +10,10 @@ import {
   ProductionStageLog,
   QualityInspection,
   ProductionStage,
+  UserRole,
 } from '@/types'
 import { quotationService } from './quotation.service'
+import { maskVendorForRole } from '@/lib/auth-guard'
 import { randomUUID } from 'crypto'
 
 export const manufacturingService = {
@@ -191,8 +193,11 @@ export const manufacturingService = {
   async getManufacturingOrderById(
     id: string,
     userId: string,
-    role: 'CUSTOMER' | 'ADMIN'
+    role: UserRole = 'ADMIN'
   ): Promise<ManufacturingOrder | null> {
+    const isClientRole = role === 'CUSTOMER' || role === 'CLIENT'
+    const isEmployeeRole = role === 'EMPLOYEE'
+
     try {
       const mfg = await prisma.manufacturingOrder.findUnique({
         where: { id },
@@ -205,8 +210,8 @@ export const manufacturingService = {
         },
       })
       if (mfg) {
-        if (role === 'CUSTOMER' && mfg.customerId !== userId) return null
-        return this.formatMfgOrder(mfg, role === 'CUSTOMER')
+        if (isClientRole && mfg.customerId !== userId) return null
+        return this.formatMfgOrder(mfg, isClientRole, role)
       }
     } catch {
       // Fallback
@@ -214,9 +219,12 @@ export const manufacturingService = {
 
     const found = dbFallback.manufacturingOrders.find((m) => m.id === id)
     if (!found) return null
-    if (role === 'CUSTOMER') {
+    if (isClientRole) {
       if (found.customerId !== userId) return null
       return { ...found, vendorId: null, vendor: null }
+    }
+    if (isEmployeeRole && found.vendor) {
+      return { ...found, vendor: maskVendorForRole(found.vendor, 'EMPLOYEE') }
     }
     return found
   },
@@ -486,7 +494,8 @@ export const manufacturingService = {
     throw new Error('Manufacturing order not found')
   },
 
-  formatMfgOrder(m: any, isCustomer: boolean = false): ManufacturingOrder {
+  formatMfgOrder(m: any, isCustomer: boolean = false, requestingRole: UserRole = 'ADMIN'): ManufacturingOrder {
+    const isEmployee = requestingRole === 'EMPLOYEE'
     return {
       id: m.id,
       manufacturingOrderNumber: m.manufacturingOrderNumber,
@@ -523,9 +532,9 @@ export const manufacturingService = {
             stock: m.product.stock,
           }
         : null,
-      // CRITICAL ZERO-LEAK RULE: Vendor / factory details strictly masked for customers
+      // CRITICAL ZERO-LEAK RULE: Vendor / factory details strictly masked for customers and masked for employees
       vendorId: isCustomer ? null : m.vendorId,
-      vendor: isCustomer ? null : m.vendor,
+      vendor: isCustomer ? null : isEmployee && m.vendor ? maskVendorForRole(m.vendor, 'EMPLOYEE') : m.vendor,
       styleCode: m.styleCode,
       quantity: m.quantity,
       material: m.material,

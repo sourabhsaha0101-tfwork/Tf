@@ -21,6 +21,11 @@ import {
   OrderItem,
   PaymentStatus,
   OrderStatus,
+  UserRole,
+  EmployeeTask,
+  AttendanceRecord,
+  DailyProgressSummary,
+  AuditLog,
 } from '@/types'
 
 export interface FallbackCategory {
@@ -124,7 +129,7 @@ export interface FallbackUser {
   name: string
   phone: string
   businessName: string
-  role: 'ADMIN' | 'CUSTOMER'
+  role: UserRole
   isActive: boolean
 }
 
@@ -149,6 +154,12 @@ class DbFallbackStore {
   // Customer Orders, Payments & Invoices
   orders: Order[] = []
 
+  // Employee Operations Collections
+  tasks: EmployeeTask[] = []
+  attendance: AttendanceRecord[] = []
+  progressSummaries: DailyProgressSummary[] = []
+  auditLogs: AuditLog[] = []
+
   constructor() {
     this.seedDefaults()
   }
@@ -160,6 +171,16 @@ class DbFallbackStore {
 
     this.users = [
       {
+        id: 'usr-superadmin-001',
+        email: 'superadmin@tuffloom.com',
+        passwordHash: adminHash,
+        name: 'Super Admin Officer',
+        phone: '9876543200',
+        businessName: 'Tuffloom Traders Headquarters',
+        role: 'SUPER_ADMIN',
+        isActive: true,
+      },
+      {
         id: 'usr-admin-001',
         email: 'admin@tuffloom.com',
         passwordHash: adminHash,
@@ -170,13 +191,23 @@ class DbFallbackStore {
         isActive: true,
       },
       {
+        id: 'usr-employee-001',
+        email: 'employee@tuffloom.com',
+        passwordHash: adminHash,
+        name: 'Vikram Seth',
+        phone: '9876543215',
+        businessName: 'Tuffloom Floor Operations',
+        role: 'EMPLOYEE',
+        isActive: true,
+      },
+      {
         id: 'usr-customer-001',
         email: 'customer@example.com',
         passwordHash: customerHash,
         name: 'Rahul Sharma',
         phone: '9876543211',
         businessName: 'Sharma Retailers',
-        role: 'CUSTOMER',
+        role: 'CLIENT',
         isActive: true,
       },
     ]
@@ -1062,6 +1093,110 @@ class DbFallbackStore {
       },
     }
     this.orders.push(o1)
+
+    // Seed Sample Employee Operations Data
+    this.tasks = [
+      {
+        id: 'tsk-001',
+        title: 'Conduct In-Line QC Check for TL-MFG-00031',
+        description: 'Verify seam stitch tension on first batch of 200 bags on line 3.',
+        assignedToId: 'usr-employee-001',
+        assignedToName: 'Vikram Seth',
+        createdById: 'usr-admin-001',
+        createdByName: 'Admin User',
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        dueDate: new Date(Date.now() + 86400000 * 2).toISOString(),
+        relatedEntityType: 'MANUFACTURING_ORDER',
+        relatedEntityId: 'mfg-001',
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+      {
+        id: 'tsk-002',
+        title: 'Review Tech Pack BOM for RFQ QT-2026-0045',
+        description: 'Cross-check fabric GSM specification against laboratory sample swatches.',
+        assignedToId: 'usr-employee-001',
+        assignedToName: 'Vikram Seth',
+        createdById: 'usr-admin-001',
+        createdByName: 'Admin User',
+        status: 'COMPLETED',
+        priority: 'MEDIUM',
+        dueDate: new Date(Date.now() - 86400000).toISOString(),
+        relatedEntityType: 'QUOTATION',
+        relatedEntityId: 'qt-001',
+        completedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+        createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+        updatedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+      },
+    ]
+
+    const todayDate = new Date().toISOString().split('T')[0]
+    this.attendance = [
+      {
+        id: 'att-001',
+        employeeId: 'usr-employee-001',
+        employeeName: 'Vikram Seth',
+        date: todayDate,
+        checkInTime: new Date(Date.now() - 3600000 * 7).toISOString(),
+        status: 'PRESENT',
+        notes: 'Shift A on-site attendance',
+        createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
+        updatedAt: new Date(Date.now() - 3600000 * 7).toISOString(),
+      },
+    ]
+
+    this.progressSummaries = [
+      {
+        id: 'prog-001',
+        employeeId: 'usr-employee-001',
+        employeeName: 'Vikram Seth',
+        date: todayDate,
+        summaryText: 'Completed stitch verification for 120 pattern sets. Line 3 running at full capacity.',
+        tasksCompletedCount: 1,
+        ordersWorkedOn: ['TL-MFG-00031'],
+        hoursLogged: 7.5,
+        blockers: 'None. Material supply is adequate.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]
+
+    this.auditLogs = [
+      {
+        id: 'aud-001',
+        actorId: 'usr-superadmin-001',
+        actorName: 'Super Admin Officer',
+        actorRole: 'SUPER_ADMIN',
+        action: 'ORDER_PRICE_UPDATE',
+        entityType: 'PRODUCT',
+        entityId: 'prod-001',
+        details: { field: 'wholesalePrice', oldValue: 500, newValue: 550 },
+        timestamp: new Date(Date.now() - 86400000 * 5).toISOString(),
+      },
+      {
+        id: 'aud-002',
+        actorId: 'usr-admin-001',
+        actorName: 'Admin User',
+        actorRole: 'ADMIN',
+        action: 'QUOTATION_PROPOSAL_SENT',
+        entityType: 'QUOTATION',
+        entityId: 'qt-001',
+        details: { quotedPrice: 21.5, leadDays: 35 },
+        timestamp: new Date(Date.now() - 86400000 * 3).toISOString(),
+      },
+      {
+        id: 'aud-003',
+        actorId: 'usr-employee-001',
+        actorName: 'Vikram Seth',
+        actorRole: 'EMPLOYEE',
+        action: 'TASK_STATUS_UPDATE',
+        entityType: 'TASK',
+        entityId: 'tsk-002',
+        details: { previousStatus: 'IN_PROGRESS', newStatus: 'COMPLETED' },
+        timestamp: new Date(Date.now() - 3600000 * 4).toISOString(),
+      },
+    ]
   }
 
   findUserByEmail(email: string) {

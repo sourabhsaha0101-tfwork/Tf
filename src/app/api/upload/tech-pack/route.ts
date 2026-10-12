@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, unauthorizedResponse } from '@/lib/auth-guard'
-import { writeFile, mkdir } from 'fs/promises'
+import { storageService } from '@/lib/storage'
 import path from 'path'
-import { randomUUID } from 'crypto'
 
 const ALLOWED_EXTENSIONS = ['.pdf', '.ai', '.cad', '.dxf', '.jpg', '.jpeg', '.png']
 const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB
@@ -24,15 +23,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No files provided' }, { status: 400 })
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'tech-packs')
-    await mkdir(uploadDir, { recursive: true })
-
     const uploadedResults: Array<{
       fileName: string
       url: string
       storagePath: string
       fileType: string
       fileSize: number
+      isPrivate: boolean
     }> = []
 
     for (const file of files) {
@@ -60,19 +57,20 @@ export async function POST(request: NextRequest) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
 
-      // Sanitize filename to prevent arbitrary execution
-      const safeBase = file.name.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40)
-      const uniqueName = `${Date.now()}-${randomUUID().slice(0, 8)}-${safeBase}${ext}`
-      const targetPath = path.join(uploadDir, uniqueName)
-
-      await writeFile(targetPath, buffer)
+      // Store in private storage — not exposed statically under Next.js public/
+      const result = await storageService.upload(buffer, file.name, {
+        isPrivate: true,
+        category: 'tech-packs',
+        mimeType: file.type || ext.slice(1),
+      })
 
       uploadedResults.push({
-        fileName: file.name,
-        url: `/uploads/tech-packs/${uniqueName}`,
-        storagePath: `tech-packs/${uniqueName}`,
-        fileType: file.type || ext.slice(1),
-        fileSize: file.size,
+        fileName: result.fileName,
+        url: result.url,
+        storagePath: result.storagePath,
+        fileType: result.fileType,
+        fileSize: result.fileSize,
+        isPrivate: result.isPrivate,
       })
     }
 

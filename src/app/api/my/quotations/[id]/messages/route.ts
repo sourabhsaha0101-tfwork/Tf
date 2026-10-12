@@ -22,10 +22,15 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Quotation not found or access denied' }, { status: 404 })
     }
 
+    const senderType: 'CUSTOMER' | 'ADMIN' =
+      auth.user.role === 'ADMIN' || auth.user.role === 'SUPER_ADMIN' || auth.user.role === 'EMPLOYEE'
+        ? 'ADMIN'
+        : 'CUSTOMER'
+
     const msg = await quotationService.addQuotationMessage(
       id,
       auth.user.id,
-      auth.user.role,
+      senderType,
       body.message.trim()
     )
 

@@ -3,19 +3,20 @@ import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 import { dbFallback } from './db-fallback'
+import { UserRole } from '@/types'
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string
-      role: 'ADMIN' | 'CUSTOMER'
+      role: UserRole
       businessName?: string
     } & DefaultSession['user']
   }
 
   interface User {
     id: string
-    role: 'ADMIN' | 'CUSTOMER'
+    role: UserRole
     businessName?: string
   }
 }
@@ -47,7 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role as 'ADMIN' | 'CUSTOMER',
+                role: user.role as UserRole,
                 businessName: user.businessName,
               }
             }
@@ -86,7 +87,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
-        session.user.role = token.role as 'ADMIN' | 'CUSTOMER'
+        session.user.role = token.role as UserRole
         session.user.businessName = token.businessName as string | undefined
       }
       return session

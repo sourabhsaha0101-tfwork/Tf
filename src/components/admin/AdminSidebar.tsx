@@ -21,6 +21,11 @@ import {
   LogOut,
   X,
   ExternalLink,
+  ListTodo,
+  CalendarCheck,
+  ClipboardList,
+  TrendingUp,
+  ShieldAlert,
 } from 'lucide-react'
 
 interface AdminSidebarProps {
@@ -43,6 +48,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
     { label: 'Sample Orders', href: '/admin/samples', icon: FlaskConical, status: 'ready' },
     { label: 'Manufacturing Orders', href: '/admin/manufacturing', icon: Factory, status: 'ready' },
     { label: 'AQL 2.5 Inspections', href: '/admin/inspections', icon: ShieldCheck, status: 'ready' },
+  ]
+
+  const employeeOpsItems = [
+    { label: 'Assigned Tasks', href: '/admin/tasks', icon: ListTodo, status: 'ready' },
+    { label: 'Attendance & Punch', href: '/admin/attendance', icon: CalendarCheck, status: 'ready' },
+    { label: 'Daily Progress', href: '/admin/daily-progress', icon: ClipboardList, status: 'ready' },
+    { label: 'Productivity Reports', href: '/admin/productivity', icon: TrendingUp, status: 'ready' },
+    { label: 'System Audit Logs', href: '/admin/audit-logs', icon: ShieldAlert, status: 'ready' },
   ]
 
   const operationsItems = [
@@ -155,6 +168,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
         <div className="flex-1 overflow-y-auto px-3 py-4">
           {renderNavGroup('Ready Wholesale', catalogItems)}
           {renderNavGroup('Custom Manufacturing (Phase 3)', manufacturingItems)}
+          {renderNavGroup('Employee Operations', employeeOpsItems)}
           {renderNavGroup('Operations', operationsItems)}
 
           <div className="pt-2 px-3">

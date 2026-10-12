@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { dbFallback } from '@/lib/db-fallback'
 import { QuotationRequestInput, AdminQuotationUpdateInput } from '@/lib/validations/quotation.schema'
-import { Quotation, QuotationFile, QuotationMessage } from '@/types'
+import { Quotation, QuotationFile, QuotationMessage, UserRole } from '@/types'
 import { productService } from './product.service'
 import { randomUUID } from 'crypto'
 
@@ -191,7 +191,10 @@ export const quotationService = {
    * Get single quotation with security check:
    * Customers cannot access other customers' quotations and cannot see admin notes
    */
-  async getQuotationById(id: string, userId: string, role: 'CUSTOMER' | 'ADMIN'): Promise<Quotation | null> {
+  async getQuotationById(id: string, userId: string, role: UserRole = 'ADMIN'): Promise<Quotation | null> {
+    const isClientRole = role === 'CUSTOMER' || role === 'CLIENT'
+    const isEmployeeRole = role === 'EMPLOYEE'
+
     try {
       const q = await prisma.quotation.findUnique({
         where: { id },
@@ -206,10 +209,11 @@ export const quotationService = {
         },
       })
       if (q) {
-        if (role === 'CUSTOMER' && q.customerId !== userId) {
+        if (isClientRole && q.customerId !== userId) {
           return null // Unauthorized access blocked
         }
-        return this.formatQuotation(q, role === 'CUSTOMER')
+        const formatted = this.formatQuotation(q, isClientRole || isEmployeeRole)
+        return formatted
       }
     } catch {
       // Fallback
@@ -218,8 +222,12 @@ export const quotationService = {
     const found = dbFallback.quotations.find((q) => q.id === id)
     if (!found) return null
 
-    if (role === 'CUSTOMER') {
+    if (isClientRole) {
       if (found.customerId !== userId) return null
+      return { ...found, adminNotes: null }
+    }
+
+    if (isEmployeeRole) {
       return { ...found, adminNotes: null }
     }
 

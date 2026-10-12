@@ -7,8 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npm run test:all",
+    "test:all": "tsx scripts/test-phase2.ts && tsx scripts/test-phase3.ts && tsx scripts/test-phase3-rbac-storage.ts",
     "test:phase2": "tsx scripts/test-phase2.ts",
-    "test:phase3": "tsx scripts/test-phase3.ts"
+    "test:phase3": "tsx scripts/test-phase3.ts && tsx scripts/test-phase3-rbac-storage.ts",
+    "test:phase3:mfg": "tsx scripts/test-phase3.ts",
+    "test:phase3:rbac": "tsx scripts/test-phase3-rbac-storage.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",

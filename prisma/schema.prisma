@@ -9,7 +9,10 @@ datasource db {
 
 enum UserRole {
   CUSTOMER
+  CLIENT
   ADMIN
+  SUPER_ADMIN
+  EMPLOYEE
 }
 
 enum AddressType {
@@ -742,3 +745,98 @@ model Certification {
 
   @@index([vendorId])
 }
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  HALF_DAY
+  ABSENT
+  ON_LEAVE
+}
+
+model EmployeeTask {
+  id                String       @id @default(uuid())
+  title             String
+  description       String?
+  assignedToId      String
+  assignedToName    String?
+  createdById       String
+  createdByName     String?
+  status            TaskStatus   @default(PENDING)
+  priority          TaskPriority @default(MEDIUM)
+  dueDate           DateTime?
+  relatedEntityType String?
+  relatedEntityId   String?
+  completedAt       DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([assignedToId])
+  @@index([status])
+}
+
+model AttendanceRecord {
+  id           String           @id @default(uuid())
+  employeeId   String
+  employeeName String?
+  date         String
+  checkInTime  DateTime
+  checkOutTime DateTime?
+  status       AttendanceStatus @default(PRESENT)
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([employeeId])
+  @@index([date])
+}
+
+model DailyProgressSummary {
+  id                  String   @id @default(uuid())
+  employeeId          String
+  employeeName        String?
+  date                String
+  summaryText         String
+  tasksCompletedCount Int      @default(0)
+  ordersWorkedOn      Json?
+  hoursLogged         Float    @default(0)
+  blockers            String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([date])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  actorName  String?
+  actorRole  String?
+  action     String
+  entityType String
+  entityId   String
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entityType, entityId])
+}
+

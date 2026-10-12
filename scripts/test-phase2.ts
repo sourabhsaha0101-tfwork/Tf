@@ -1,6 +1,8 @@
 import { categoryService } from '../src/lib/services/category.service'
 import { productService } from '../src/lib/services/product.service'
 import { tierPricingService } from '../src/lib/services/tier-pricing.service'
+import { cartService } from '../src/lib/services/cart.service'
+import { orderService } from '../src/lib/services/order.service'
 import { productSchema } from '../src/lib/validations/product.schema'
 import { categorySchema } from '../src/lib/validations/category.schema'
 import { requireAdmin } from '../src/lib/auth-guard'
@@ -384,10 +386,153 @@ async function main() {
     }
   })
 
+  // 17. Multi-item shopping cart additions and tiered wholesale pricing
+  let testOrderId = ''
+  let secondProductId = ''
+  const testUserId = `test-buyer-${uniqueSuffix}`
+
+  await runTest(17, 'Multi-item shopping cart with volume tier discount', async () => {
+    // Reactivate testProductId
+    await productService.updateProduct(testProductId, { isArchived: false, status: 'ACTIVE' })
+
+    // Create a second wholesale product
+    const p2 = await productService.createProduct({
+      name: `Tuffloom Canvas Duffel ${uniqueSuffix}`,
+      slug: `canvas-duffel-${uniqueSuffix}`,
+      sku: `TL-DUF-${uniqueSuffix}`,
+      categoryId: testCatId,
+      description: 'Rugged canvas travel duffel bag',
+      wholesalePrice: 400,
+      gstPercent: 18,
+      moq: 15,
+      stock: 200,
+      status: 'ACTIVE',
+      featured: false,
+      images: [],
+      quantityPricing: [],
+    })
+    secondProductId = p2.id
+
+    // Add first product with 60 units (tier: 50-99 -> ₹490 instead of base ₹550)
+    await cartService.addItem(testUserId, testProductId, 60)
+    // Add second product with 20 units (base: ₹400)
+    const cart = await cartService.addItem(testUserId, secondProductId, 20)
+
+    if (cart.items.length !== 2) {
+      throw new Error(`Expected 2 cart items, got ${cart.items.length}`)
+    }
+    if (cart.totalQuantity !== 80) {
+      throw new Error(`Expected total quantity 80, got ${cart.totalQuantity}`)
+    }
+
+    const item1 = cart.items.find((i) => i.productId === testProductId)
+    if (!item1 || item1.pricing.appliedUnitPrice !== 490) {
+      throw new Error(`Expected item 1 tier price 490, got ${item1?.pricing.appliedUnitPrice}`)
+    }
+    if (cart.totalSavings !== 60 * (530 - 490)) {
+      throw new Error(`Expected total savings ${60 * (530 - 490)}, got ${cart.totalSavings}`)
+    }
+  })
+
+  // 18. Checkout and Order creation from cart
+  await runTest(18, 'Checkout and Order creation from multi-item cart', async () => {
+    const order = await orderService.createOrderFromCart({
+      userId: testUserId,
+      billingAddress: {
+        name: 'Amit Patel',
+        company: 'Patel Trading House',
+        line1: 'Plot 45, GIDC Industrial Estate',
+        city: 'Surat',
+        state: 'Gujarat',
+        pincode: '395003',
+      },
+      shippingAddress: {
+        name: 'Amit Patel',
+        line1: 'Plot 45, GIDC Industrial Estate',
+        city: 'Surat',
+        state: 'Gujarat',
+        pincode: '395003',
+      },
+      paymentMethod: 'RAZORPAY',
+    })
+
+    if (!order || !order.id) throw new Error('Order creation failed')
+    if (!order.orderNumber.startsWith('ORD-')) throw new Error('Order number format invalid')
+    if (order.items.length !== 2) throw new Error(`Expected 2 order items, got ${order.items.length}`)
+    if (order.status !== 'ORDER_PLACED') throw new Error(`Expected status ORDER_PLACED, got ${order.status}`)
+    if (order.paymentStatus !== 'PENDING') throw new Error(`Expected paymentStatus PENDING, got ${order.paymentStatus}`)
+    testOrderId = order.id
+
+    // Verify cart was cleared after checkout
+    const postCart = await cartService.getCart(testUserId)
+    if (postCart.items.length !== 0) {
+      throw new Error('Cart was not cleared after order creation')
+    }
+  })
+
+  // 19. Payment workflow (Mock confirmation without real charges)
+  await runTest(19, 'Mock payment confirmation workflow transitions order to PAID', async () => {
+    const paidOrder = await orderService.confirmPayment(
+      testOrderId,
+      'RAZORPAY',
+      `PAY_MOCK_${uniqueSuffix}_CONFIRMED`
+    )
+
+    if (paidOrder.paymentStatus !== 'PAID') {
+      throw new Error(`Expected payment status PAID, got ${paidOrder.paymentStatus}`)
+    }
+    if (paidOrder.status !== 'PAYMENT_CONFIRMED') {
+      throw new Error(`Expected order status PAYMENT_CONFIRMED, got ${paidOrder.status}`)
+    }
+  })
+
+  // 20. Shipment and tracking lifecycle
+  await runTest(20, 'Shipment assignment and tracking lifecycle progression', async () => {
+    // 20a. Dispatch with courier tracking
+    const shipped = await orderService.updateShipment(testOrderId, {
+      carrier: 'BlueDart Express B2B Surface',
+      trackingNumber: `BD-EXP-${uniqueSuffix}`,
+      status: 'IN_TRANSIT',
+    })
+
+    if (shipped.status !== 'IN_TRANSIT') {
+      throw new Error(`Expected order status IN_TRANSIT, got ${shipped.status}`)
+    }
+
+    // 20b. Delivered status
+    const delivered = await orderService.updateShipment(testOrderId, {
+      carrier: 'BlueDart Express B2B Surface',
+      trackingNumber: `BD-EXP-${uniqueSuffix}`,
+      status: 'DELIVERED',
+    })
+
+    if (delivered.status !== 'DELIVERED') {
+      throw new Error(`Expected order status DELIVERED, got ${delivered.status}`)
+    }
+  })
+
+  // 21. Invoice generation and access
+  await runTest(21, 'Invoice generation with itemized GST breakdown', async () => {
+    const invoice = await orderService.generateInvoice(testOrderId)
+
+    if (!invoice || !invoice.invoiceNumber.startsWith('INV-')) {
+      throw new Error('Invoice number format invalid')
+    }
+    if (invoice.items.length !== 2) {
+      throw new Error(`Expected 2 invoice items, got ${invoice.items.length}`)
+    }
+    if (invoice.status !== 'PAID') {
+      throw new Error(`Expected invoice status PAID, got ${invoice.status}`)
+    }
+    if (invoice.grandTotal <= 0 || invoice.gstAmount <= 0) {
+      throw new Error('Invoice financial totals are invalid')
+    }
+  })
+
   console.log('\n======================================================================')
   const passedCount = results.filter((r) => r.passed).length
   const failedCount = results.filter((r) => !r.passed).length
-  console.log(`TEST SUMMARY: ${passedCount}/16 PASSED, ${failedCount} FAILED`)
+  console.log(`TEST SUMMARY: ${passedCount}/21 PASSED, ${failedCount} FAILED`)
   console.log('======================================================================')
 
   if (failedCount > 0) {
@@ -399,3 +544,4 @@ main().catch((e) => {
   console.error('Test runner encountered unexpected fatal error:', e)
   process.exit(1)
 })
+
