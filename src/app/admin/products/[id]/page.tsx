@@ -273,42 +273,72 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               ) : (
                 <div className="border border-gray-200 rounded-xl overflow-hidden">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50 text-gray-500 font-semibold border-b border-gray-100">
-                      <tr>
-                        <th className="px-4 py-2.5">Tier</th>
-                        <th className="px-4 py-2.5">Quantity Range</th>
-                        <th className="px-4 py-2.5">Price / Unit</th>
-                        <th className="px-4 py-2.5">Bulk Savings</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                      {product.quantityPricing.map((t, idx) => {
-                        const savings = Math.max(0, product.wholesalePrice - t.pricePerUnit)
-                        const pct = product.wholesalePrice > 0 ? Math.round((savings / product.wholesalePrice) * 100) : 0
-                        return (
-                          <tr key={t.id || idx}>
-                            <td className="px-4 py-2.5 font-bold text-gray-900">Tier #{idx + 1}</td>
-                            <td className="px-4 py-2.5 font-semibold text-gray-800">
-                              {t.minQty} {t.maxQty ? `– ${t.maxQty} pcs` : '+ pcs'}
-                            </td>
-                            <td className="px-4 py-2.5 font-bold text-orange-600">₹{t.pricePerUnit}</td>
-                            <td className="px-4 py-2.5">
-                              {pct > 0 ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700">
-                                  <Percent className="w-3 h-3" /> {pct}% off (Save ₹{savings}/pc)
-                                </span>
-                              ) : (
-                                <span className="text-gray-400">Base</span>
-                              )}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                  {/* Mobile Pricing Tier Cards */}
+                  <div className="block md:hidden divide-y divide-gray-100">
+                    {product.quantityPricing.map((t, idx) => {
+                      const savings = Math.max(0, product.wholesalePrice - t.pricePerUnit)
+                      const pct = product.wholesalePrice > 0 ? Math.round((savings / product.wholesalePrice) * 100) : 0
+                      return (
+                        <div key={t.id || idx} className="p-3 space-y-1 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-gray-900">Tier #{idx + 1}</span>
+                            <span className="font-bold text-orange-600 text-sm">₹{t.pricePerUnit}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-gray-600">
+                            <span>Range: <strong>{t.minQty} {t.maxQty ? `– ${t.maxQty} pcs` : '+ pcs'}</strong></span>
+                            {pct > 0 ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                                <Percent className="w-2.5 h-2.5" /> {pct}% off
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 text-[10px]">Base</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Desktop Pricing Table */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-gray-50 text-gray-500 font-semibold border-b border-gray-100">
+                        <tr>
+                          <th className="px-4 py-2.5">Tier</th>
+                          <th className="px-4 py-2.5">Quantity Range</th>
+                          <th className="px-4 py-2.5">Price / Unit</th>
+                          <th className="px-4 py-2.5">Bulk Savings</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                        {product.quantityPricing.map((t, idx) => {
+                          const savings = Math.max(0, product.wholesalePrice - t.pricePerUnit)
+                          const pct = product.wholesalePrice > 0 ? Math.round((savings / product.wholesalePrice) * 100) : 0
+                          return (
+                            <tr key={t.id || idx}>
+                              <td className="px-4 py-2.5 font-bold text-gray-900">Tier #{idx + 1}</td>
+                              <td className="px-4 py-2.5 font-semibold text-gray-800">
+                                {t.minQty} {t.maxQty ? `– ${t.maxQty} pcs` : '+ pcs'}
+                              </td>
+                              <td className="px-4 py-2.5 font-bold text-orange-600">₹{t.pricePerUnit}</td>
+                              <td className="px-4 py-2.5">
+                                {pct > 0 ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700">
+                                    <Percent className="w-3 h-3" /> {pct}% off (Save ₹{savings}/pc)
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">Base</span>
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
+
             </div>
           </div>
         </div>

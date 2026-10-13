@@ -73,44 +73,82 @@ export default function AdminAuditLogsPage() {
         </div>
       ) : (
         <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px] tracking-wider">
-              <tr>
-                <th className="px-6 py-4">Timestamp</th>
-                <th className="px-6 py-4">Actor</th>
-                <th className="px-6 py-4">Role</th>
-                <th className="px-6 py-4">Action</th>
-                <th className="px-6 py-4">Entity</th>
-                <th className="px-6 py-4">Details</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50/60 transition-colors">
-                  <td className="px-6 py-4 font-mono text-gray-500 whitespace-nowrap">
+          {/* Mobile Cards (Visible on screens < md) */}
+          <div className="block md:hidden divide-y divide-gray-100">
+            {logs.map((log) => (
+              <div key={log.id} className="p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] text-gray-400">
                     {new Date(log.timestamp).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 font-bold text-gray-900">{log.actorName}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-700">
-                      {log.actorRole}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 font-mono font-bold text-orange-600">
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-700">
+                    {log.actorRole}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-bold text-sm text-gray-900">{log.actorName}</div>
+                  <span className="font-mono text-xs font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200/60">
                     {log.action}
-                  </td>
-                  <td className="px-6 py-4 font-mono text-gray-600">
-                    {log.entityType} ({log.entityId.slice(0, 10)})
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 font-mono text-[11px] max-w-xs truncate">
-                    {log.details ? JSON.stringify(log.details) : '—'}
-                  </td>
+                  </span>
+                </div>
+
+                <div className="bg-gray-50 p-2.5 rounded-xl text-xs space-y-1">
+                  <div className="text-gray-600 font-mono text-[11px]">
+                    <strong>Target:</strong> {log.entityType} ({log.entityId?.slice(0, 10)})
+                  </div>
+                  {log.details && (
+                    <div className="text-[11px] font-mono text-gray-500 truncate">
+                      {JSON.stringify(log.details)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table (Hidden on screens < md) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px] tracking-wider">
+                <tr>
+                  <th className="px-6 py-4">Timestamp</th>
+                  <th className="px-6 py-4">Actor</th>
+                  <th className="px-6 py-4">Role</th>
+                  <th className="px-6 py-4">Action</th>
+                  <th className="px-6 py-4">Entity</th>
+                  <th className="px-6 py-4">Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50/60 transition-colors">
+                    <td className="px-6 py-4 font-mono text-gray-500 whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 font-bold text-gray-900">{log.actorName}</td>
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-700">
+                        {log.actorRole}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-mono font-bold text-orange-600">
+                      {log.action}
+                    </td>
+                    <td className="px-6 py-4 font-mono text-gray-600">
+                      {log.entityType} ({log.entityId.slice(0, 10)})
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-mono text-[11px] max-w-xs truncate">
+                      {log.details ? JSON.stringify(log.details) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
   )
 }
+

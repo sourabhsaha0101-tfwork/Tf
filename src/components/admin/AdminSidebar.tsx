@@ -105,17 +105,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
             key={item.label}
             href={item.href}
             onClick={onClose}
-            className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[40px] transition-all ${
               active
                 ? 'bg-orange-50 text-orange-600 shadow-xs'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Icon className={`w-4 h-4 ${active ? 'text-orange-600' : 'text-gray-500'}`} />
-              <span>{item.label}</span>
+              <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-orange-600' : 'text-gray-500'}`} />
+              <span className="truncate">{item.label}</span>
             </div>
-            {active && <span className="w-1.5 h-3.5 rounded-full bg-orange-600"></span>}
+            {active && <span className="w-1.5 h-3.5 rounded-full bg-orange-600 shrink-0"></span>}
           </Link>
         )
       })}

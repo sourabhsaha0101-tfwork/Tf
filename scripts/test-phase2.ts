@@ -137,7 +137,7 @@ async function main() {
   // 5. Primary image works
   await runTest(5, 'Primary image works', async () => {
     const prod = await productService.getProductById(testProductId)
-    const primaries = prod?.images?.filter((img) => img.isPrimary) || []
+    const primaries = prod?.images?.filter((img: { isPrimary?: boolean }) => img.isPrimary) || []
     if (primaries.length !== 1) {
       throw new Error(`Expected exactly 1 primary image, found ${primaries.length}`)
     }

@@ -114,7 +114,7 @@ export default function AdminDailyProgressPage() {
               min={0}
               value={tasksCompleted}
               onChange={(e) => setTasksCompleted(parseInt(e.target.value) || 0)}
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-hidden focus:border-orange-500"
+              className="w-full text-xs p-2.5 min-h-[44px] rounded-xl border border-gray-200 focus:outline-hidden focus:border-orange-500"
             />
           </div>
 
@@ -129,7 +129,7 @@ export default function AdminDailyProgressPage() {
               max={24}
               value={hoursLogged}
               onChange={(e) => setHoursLogged(parseFloat(e.target.value) || 8)}
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-hidden focus:border-orange-500"
+              className="w-full text-xs p-2.5 min-h-[44px] rounded-xl border border-gray-200 focus:outline-hidden focus:border-orange-500"
             />
           </div>
 
@@ -142,7 +142,7 @@ export default function AdminDailyProgressPage() {
               value={blockers}
               onChange={(e) => setBlockers(e.target.value)}
               placeholder="e.g. Awaiting zipper batch clearance"
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-hidden focus:border-orange-500"
+              className="w-full text-xs p-2.5 min-h-[44px] rounded-xl border border-gray-200 focus:outline-hidden focus:border-orange-500"
             />
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function AdminDailyProgressPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-sm transition-all disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-sm transition-all disabled:opacity-50 flex items-center justify-center"
           >
             {submitting ? 'Submitting...' : 'Submit Progress Log'}
           </button>

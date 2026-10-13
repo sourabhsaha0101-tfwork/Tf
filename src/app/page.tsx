@@ -37,10 +37,10 @@ export default function Home() {
             Order ready-to-ship bulk wholesale inventory or commission custom private-label manufacturing with 11-stage tracking and certified AQL 2.5 quality control.
           </p>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
             <Link
               href="/products?productType=READY_WHOLESALE"
-              className="px-6 py-3.5 rounded-xl text-sm font-bold text-white bg-gray-900 hover:bg-black shadow-md transition-all flex items-center gap-2"
+              className="px-6 py-3.5 min-h-[44px] rounded-xl text-sm font-bold text-white bg-gray-900 hover:bg-black shadow-md transition-all flex items-center justify-center gap-2"
             >
               <Package className="w-4 h-4 text-orange-400" />
               Explore Ready Stock
@@ -48,7 +48,7 @@ export default function Home() {
 
             <Link
               href="/custom-manufacturing"
-              className="px-6 py-3.5 rounded-xl text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-md shadow-orange-600/30 transition-all flex items-center gap-2"
+              className="px-6 py-3.5 min-h-[44px] rounded-xl text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-md shadow-orange-600/30 transition-all flex items-center justify-center gap-2"
             >
               <Sparkles className="w-4 h-4" />
               Get Custom Quotation
@@ -57,7 +57,7 @@ export default function Home() {
 
             <Link
               href="/account"
-              className="px-6 py-3.5 rounded-xl text-sm font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 shadow-xs transition-all flex items-center gap-2"
+              className="px-6 py-3.5 min-h-[44px] rounded-xl text-sm font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 shadow-xs transition-all flex items-center justify-center gap-2"
             >
               <ClipboardList className="w-4 h-4 text-gray-500" />
               Track Production

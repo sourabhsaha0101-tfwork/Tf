@@ -385,7 +385,7 @@ export default function ProductDetailPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Link
                       href={`/custom-manufacturing?productId=${product.id}&styleCode=${product.styleCode || ''}`}
-                      className="py-3.5 px-4 text-center text-xs font-black text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-md shadow-orange-600/30 transition-all flex items-center justify-center gap-2"
+                      className="min-h-[48px] py-3 px-4 text-center text-xs font-black text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-md shadow-orange-600/30 transition-all flex items-center justify-center gap-2"
                     >
                       <Sparkles className="w-4 h-4" />
                       GET CUSTOM QUOTATION
@@ -394,7 +394,7 @@ export default function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={() => setShowSampleModal(true)}
-                      className="py-3.5 px-4 text-center text-xs font-bold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+                      className="min-h-[48px] py-3 px-4 text-center text-xs font-bold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
                     >
                       <Send className="w-4 h-4 text-orange-600" />
                       ORDER PROTOTYPE SAMPLE
@@ -411,21 +411,21 @@ export default function ProductDetailPage() {
               {/* If READY_WHOLESALE: Show ADD TO CART */}
               {isWholesaleOnly && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-32">
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                    <div className="w-full sm:w-32">
                       <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Quantity (MOQ {product.moq})</label>
                       <input
                         type="number"
                         min={product.moq}
                         value={cartQuantity}
                         onChange={(e) => setCartQuantity(Math.max(product.moq, parseInt(e.target.value) || product.moq))}
-                        className="w-full px-3 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl text-center"
+                        className="w-full px-3 py-2.5 min-h-[44px] text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl text-center"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      className="flex-1 py-3 px-6 text-xs font-black text-white bg-gray-900 hover:bg-black rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-4"
+                      className="flex-1 min-h-[44px] py-3 px-6 text-xs font-black text-white bg-gray-900 hover:bg-black rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
                     >
                       {cartSuccess ? (
                         <>
@@ -446,7 +446,7 @@ export default function ProductDetailPage() {
               {/* If BOTH: Show BOTH ADD TO CART AND GET CUSTOM QUOTATION */}
               {isBoth && (
                 <div className="space-y-4">
-                  <div className="p-3 bg-blue-50/60 border border-blue-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="p-3.5 bg-blue-50/60 border border-blue-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="text-xs font-bold text-blue-900">Wholesale Ready Stock</div>
                       <div className="text-[11px] text-blue-700">Immediate dispatch for ready inventory in warehouse</div>
@@ -454,22 +454,22 @@ export default function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-xs flex items-center gap-1.5"
+                      className="w-full sm:w-auto min-h-[44px] px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0"
                     >
                       <ShoppingCart className="w-3.5 h-3.5" />
                       {cartSuccess ? 'Added to Cart' : `Add ${product.moq} pcs to Cart`}
                     </button>
                   </div>
 
-                  <div className="p-3 bg-orange-50/60 border border-orange-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="p-3.5 bg-orange-50/60 border border-orange-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="text-xs font-bold text-orange-900">Contract Manufacturing</div>
                       <div className="text-[11px] text-orange-700">Custom colors, materials, private label & branding</div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                       <Link
                         href={`/custom-manufacturing?productId=${product.id}&styleCode=${product.styleCode || ''}`}
-                        className="px-3.5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-all shadow-xs flex items-center gap-1.5"
+                        className="min-h-[44px] px-4 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
                         Get Custom Quotation
@@ -477,7 +477,7 @@ export default function ProductDetailPage() {
                       <button
                         type="button"
                         onClick={() => setShowSampleModal(true)}
-                        className="px-3 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl"
+                        className="min-h-[44px] px-4 py-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl flex items-center justify-center shrink-0"
                       >
                         Sample
                       </button>
@@ -516,7 +516,7 @@ export default function ProductDetailPage() {
       {/* Prototype Sample Modal */}
       {showSampleModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div>
               <div className="text-xs font-bold text-orange-600 uppercase tracking-wider">
                 Prototype Sample Request
@@ -545,7 +545,7 @@ export default function ProductDetailPage() {
                     required
                     value={sampleFormData.shippingDestination}
                     onChange={(e) => setSampleFormData({ ...sampleFormData, shippingDestination: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20"
+                    className="w-full px-3.5 py-2.5 min-h-[44px] bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20"
                     placeholder="Complete office/warehouse address for sample delivery"
                   />
                 </div>
@@ -576,18 +576,18 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowSampleModal(false)}
-                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl"
+                    className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl flex items-center justify-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={sampleSubmitting}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
                     {sampleSubmitting ? 'Submitting...' : 'Confirm Sample Order'}
                   </button>

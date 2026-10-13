@@ -186,7 +186,57 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile Cards (Visible on screens < md) */}
+          <div className="block md:hidden divide-y divide-gray-100">
+            {products.length === 0 ? (
+              <div className="p-8 text-center text-gray-400 text-xs">
+                {loading ? 'Loading products...' : 'No products found. Click "Add Product" to get started.'}
+              </div>
+            ) : (
+              products.map((p) => {
+                const primaryImg = p.images?.find((img) => img.isPrimary) || p.images?.[0]
+                return (
+                  <div key={p.id} className="p-4 space-y-2.5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                        {primaryImg?.url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={primaryImg.url} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-mono text-[11px] font-bold text-gray-400">{p.sku}</span>
+                          <Badge status={p.status} />
+                        </div>
+                        <div className="font-bold text-sm text-gray-900 truncate mt-0.5">{p.name}</div>
+                        <div className="text-[11px] text-gray-500">
+                          {p.category?.name || 'Bags'} • ₹{p.wholesalePrice}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 border-t border-gray-100 text-xs">
+                      <span className="text-gray-500">
+                        Stock: <strong className={p.stock < 50 ? 'text-amber-600' : 'text-gray-900'}>{p.stock} units</strong>
+                      </span>
+                      <Link
+                        href={`/admin/products/${p.id}/edit`}
+                        className="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 font-bold hover:bg-orange-100 transition-colors"
+                      >
+                        Edit →
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+
+          {/* Desktop Table (Hidden on screens < md) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-gray-50 text-gray-500 font-semibold uppercase tracking-wider border-b border-gray-100">
                 <tr>

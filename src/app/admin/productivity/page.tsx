@@ -91,48 +91,94 @@ export default function AdminProductivityPage() {
             </div>
           </div>
 
-          {/* Breakdown Table */}
+          {/* Breakdown Table & Mobile Cards */}
           <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-sm font-bold text-gray-900">Employee Performance Breakdown</h2>
               <span className="text-xs font-mono text-gray-500">{report.period}</span>
             </div>
-            <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th className="px-6 py-4">Employee</th>
-                  <th className="px-6 py-4">Tasks Assigned</th>
-                  <th className="px-6 py-4">Tasks Completed</th>
-                  <th className="px-6 py-4">Completion %</th>
-                  <th className="px-6 py-4">Hours Logged</th>
-                  <th className="px-6 py-4">Attendance (Days)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {report.employeeSummaries.map((emp: any) => (
-                  <tr key={emp.employeeId} className="hover:bg-gray-50/60 transition-colors">
-                    <td className="px-6 py-4 font-bold text-gray-900">{emp.employeeName}</td>
-                    <td className="px-6 py-4 font-mono text-gray-600">{emp.tasksAssigned}</td>
-                    <td className="px-6 py-4 font-mono text-emerald-600 font-bold">
-                      {emp.tasksCompleted}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 bg-gray-100 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-emerald-500 h-full rounded-full"
-                            style={{ width: `${emp.completionRate}%` }}
-                          />
-                        </div>
-                        <span className="font-mono font-bold">{emp.completionRate}%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-gray-600">{emp.hoursLogged} hrs</td>
-                    <td className="px-6 py-4 font-mono text-gray-600">{emp.attendanceDays}</td>
+
+            {/* Mobile Cards (Visible on screens < md) */}
+            <div className="block md:hidden divide-y divide-gray-100">
+              {report.employeeSummaries.map((emp: any) => (
+                <div key={emp.employeeId} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm text-gray-900">{emp.employeeName}</span>
+                    <span className="text-[11px] font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                      {emp.attendanceDays} Days Present
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500 font-medium">Task Completion</span>
+                      <span className="font-mono font-bold text-emerald-600">{emp.completionRate}%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
+                      <div
+                        className="bg-emerald-500 h-full rounded-full transition-all"
+                        style={{ width: `${emp.completionRate}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl text-center text-xs">
+                    <div>
+                      <span className="text-[10px] text-gray-400 block font-semibold uppercase">Assigned</span>
+                      <strong className="text-gray-900 font-bold">{emp.tasksAssigned}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-gray-400 block font-semibold uppercase">Completed</span>
+                      <strong className="text-emerald-600 font-bold">{emp.tasksCompleted}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-gray-400 block font-semibold uppercase">Hours</span>
+                      <strong className="text-gray-900 font-bold">{emp.hoursLogged} hrs</strong>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (Hidden on screens < md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-gray-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px] tracking-wider">
+                  <tr>
+                    <th className="px-6 py-4">Employee</th>
+                    <th className="px-6 py-4">Tasks Assigned</th>
+                    <th className="px-6 py-4">Tasks Completed</th>
+                    <th className="px-6 py-4">Completion %</th>
+                    <th className="px-6 py-4">Hours Logged</th>
+                    <th className="px-6 py-4">Attendance (Days)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {report.employeeSummaries.map((emp: any) => (
+                    <tr key={emp.employeeId} className="hover:bg-gray-50/60 transition-colors">
+                      <td className="px-6 py-4 font-bold text-gray-900">{emp.employeeName}</td>
+                      <td className="px-6 py-4 font-mono text-gray-600">{emp.tasksAssigned}</td>
+                      <td className="px-6 py-4 font-mono text-emerald-600 font-bold">
+                        {emp.tasksCompleted}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-gray-100 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="bg-emerald-500 h-full rounded-full"
+                              style={{ width: `${emp.completionRate}%` }}
+                            />
+                          </div>
+                          <span className="font-mono font-bold">{emp.completionRate}%</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-mono text-gray-600">{emp.hoursLogged} hrs</td>
+                      <td className="px-6 py-4 font-mono text-gray-600">{emp.attendanceDays}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       ) : null}

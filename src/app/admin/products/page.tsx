@@ -253,9 +253,123 @@ export default function AdminProductsListPage() {
           </div>
         </div>
 
-        {/* Product Table */}
+        {/* Product Table & Mobile Cards */}
         <div className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
+          {/* Mobile Cards (Visible on mobile/small screens < md) */}
+          <div className="block md:hidden divide-y divide-gray-100">
+            {loading ? (
+              <div className="p-8 text-center text-gray-400">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-orange-600 mb-2" />
+                Loading catalog products...
+              </div>
+            ) : products.length === 0 ? (
+              <div className="p-8 text-center text-gray-400 text-xs">
+                No products match your criteria.
+              </div>
+            ) : (
+              products.map((p) => {
+                const primaryImg = p.images?.find((i) => i.isPrimary) || p.images?.[0]
+                const updatedStr = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '—'
+
+                return (
+                  <div key={p.id} className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-16 h-16 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                        {primaryImg?.url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={primaryImg.url} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-mono text-[11px] font-bold text-gray-500">{p.sku}</span>
+                          <Badge status={p.status} />
+                        </div>
+                        <Link
+                          href={`/admin/products/${p.id}`}
+                          className="font-bold text-sm text-gray-900 hover:text-orange-600 transition-colors line-clamp-1 mt-0.5"
+                        >
+                          {p.name}
+                        </Link>
+                        <div className="text-[11px] text-gray-500 mt-0.5">
+                          {p.category?.name || 'Bags'} • {p.brand || 'Tuffloom'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl text-center text-xs">
+                      <div>
+                        <span className="text-[10px] text-gray-400 block font-semibold uppercase">Wholesale</span>
+                        <strong className="text-gray-900 font-bold">₹{p.wholesalePrice}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-gray-400 block font-semibold uppercase">MOQ</span>
+                        <strong className="text-gray-900 font-bold">{p.moq} pcs</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-gray-400 block font-semibold uppercase">Stock</span>
+                        <strong
+                          className={
+                            p.stock === 0
+                              ? 'text-rose-600 font-bold'
+                              : p.stock < 50
+                              ? 'text-amber-600 font-bold'
+                              : 'text-gray-900 font-bold'
+                          }
+                        >
+                          {p.stock}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Touch-Friendly Action Toolbar */}
+                    <div className="flex items-center justify-between pt-1 border-t border-gray-100 text-xs">
+                      <span className="text-[11px] text-gray-400 font-mono">Updated: {updatedStr}</span>
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/admin/products/${p.id}`}
+                          className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-900 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                          title="View"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link
+                          href={`/admin/products/${p.id}/edit`}
+                          className="w-9 h-9 flex items-center justify-center text-orange-600 hover:text-orange-700 rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Link>
+                        <button
+                          onClick={() => handleDuplicate(p)}
+                          className="w-9 h-9 flex items-center justify-center text-blue-600 hover:text-blue-700 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+                          title="Duplicate"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(p)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${
+                            p.status === 'ACTIVE'
+                              ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+                              : 'text-gray-500 bg-gray-100 hover:bg-gray-200'
+                          }`}
+                          title={p.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                        >
+                          <Power className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+
+          {/* Desktop Table (Hidden on small screens < md) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-gray-50 text-gray-500 font-semibold uppercase tracking-wider border-b border-gray-100">
                 <tr>
@@ -419,6 +533,7 @@ export default function AdminProductsListPage() {
               </tbody>
             </table>
           </div>
+
 
           {/* Pagination */}
           <Pagination

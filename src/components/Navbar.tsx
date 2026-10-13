@@ -92,70 +92,83 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu toggle button */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-1.5">
           <Link
             href="/account"
-            className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+            className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-orange-600 hover:bg-gray-100 rounded-xl transition-colors"
             title="My Account"
+            aria-label="My Account"
           >
             <User className="w-5 h-5" />
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none"
+            className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-orange-600 hover:bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-colors"
             aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Backdrop & Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-gray-200 bg-white px-4 pt-2 pb-6 space-y-3">
-          <div className="flex flex-col space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-3 py-2.5 text-sm font-semibold rounded-lg ${
-                  isActive(link.href)
-                    ? 'text-orange-600 bg-orange-50 font-bold'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+        <>
+          <div
+            className="fixed inset-0 top-16 bg-black/40 backdrop-blur-xs z-30 md:hidden animate-fade-in"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="relative z-40 md:hidden border-b border-gray-200 bg-white px-4 pt-3 pb-6 space-y-4 shadow-xl">
+            <div className="flex flex-col space-y-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-3 text-sm font-semibold rounded-xl flex items-center justify-between min-h-[44px] transition-colors ${
+                    isActive(link.href)
+                      ? 'text-orange-600 bg-orange-50 font-bold'
+                      : 'text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                </Link>
+              ))}
+            </div>
 
-          <div className="pt-2 border-t border-gray-100 flex flex-col gap-2">
-            <Link
-              href="/custom-manufacturing"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-2.5 text-center text-xs font-bold text-white bg-orange-600 rounded-xl shadow-xs"
-            >
-              Get Custom Quotation
-            </Link>
-            <div className="flex items-center gap-2">
+            <div className="pt-3 border-t border-gray-100 flex flex-col gap-2.5">
               <Link
-                href="/account"
+                href="/custom-manufacturing"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex-1 py-2 text-center text-xs font-semibold text-gray-700 bg-gray-100 rounded-xl"
+                className="w-full py-3 text-center text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs min-h-[44px] flex items-center justify-center gap-1.5 transition-colors"
               >
-                My Account
+                <Sparkles className="w-4 h-4" />
+                Get Custom Quotation
               </Link>
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex-1 py-2 text-center text-xs font-semibold text-white bg-gray-900 rounded-xl"
-              >
-                Admin
-              </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 text-center text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px] flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  My Account
+                </Link>
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 text-center text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl min-h-[44px] flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <ShieldCheck className="w-4 h-4 text-orange-400" />
+                  Admin
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   )

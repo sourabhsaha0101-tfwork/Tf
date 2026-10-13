@@ -255,7 +255,7 @@ function AccountPageContent() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-gray-200">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-200 no-scrollbar touch-pan-x">
           {navTabs.map((tab) => {
             const Icon = tab.icon
             const isSelected = activeTab === tab.id
@@ -266,17 +266,17 @@ function AccountPageContent() {
                   setActiveTab(tab.id)
                   router.replace(`/account?tab=${tab.id}`, { scroll: false })
                 }}
-                className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap min-h-[44px] select-none ${
                   isSelected
                     ? 'bg-orange-600 text-white shadow-xs'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80 active:bg-gray-200'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4 shrink-0" />
                 <span>{tab.label}</span>
                 {tab.badge !== undefined && (
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                       isSelected ? 'bg-orange-700 text-white' : 'bg-gray-100 text-gray-600'
                     }`}
                   >
@@ -292,10 +292,10 @@ function AccountPageContent() {
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* Metric KPI Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
               <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs">
                 <span className="text-[10px] uppercase font-bold text-gray-400">Total Purchase</span>
-                <div className="text-xl font-black text-gray-900 mt-1">
+                <div className="text-xl sm:text-2xl font-black text-gray-900 mt-1 truncate">
                   ₹{(dashboardMetrics?.totalPurchase || 845000).toLocaleString('en-IN')}
                 </div>
                 <span className="text-[10px] text-gray-500 mt-1 block">Wholesale & Manufacturing</span>
@@ -758,7 +758,7 @@ function AccountPageContent() {
                           type="button"
                           onClick={() => handleApproveQuotation(selectedQuotation.id)}
                           disabled={approvingQuotation}
-                          className="px-4 py-2.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                          className="w-full sm:w-auto min-h-[44px] px-4 py-2.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5"
                         >
                           <Check className="w-4 h-4" />
                           {approvingQuotation ? 'Approving...' : 'Approve & Create Manufacturing Order'}
@@ -849,18 +849,18 @@ function AccountPageContent() {
                       </div>
 
                       {/* Send message form */}
-                      <form onSubmit={handleSendMessage} className="flex gap-2 pt-2">
+                      <form onSubmit={handleSendMessage} className="flex flex-col sm:flex-row gap-2 pt-2">
                         <input
                           type="text"
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           placeholder="Type engineering question or specification update..."
-                          className="flex-1 px-3.5 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl"
+                          className="flex-1 px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl min-h-[44px]"
                         />
                         <button
                           type="submit"
                           disabled={sendingMessage || !newMessage.trim()}
-                          className="px-4 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl disabled:opacity-50"
+                          className="px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl disabled:opacity-50 min-h-[44px] flex items-center justify-center shrink-0"
                         >
                           Send
                         </button>
@@ -892,10 +892,10 @@ function AccountPageContent() {
                 {sampleOrders.map((s) => (
                   <div
                     key={s.id}
-                    className="p-5 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                    className="p-4 sm:p-5 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono font-bold text-gray-900">{s.sampleOrderNumber}</span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
                           {s.sampleStatus}
@@ -916,10 +916,10 @@ function AccountPageContent() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/60">
+                      <div className="text-left sm:text-right">
                         <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Invoice</span>
-                        <strong className="text-sm font-black text-gray-900">
+                        <strong className="text-base font-black text-gray-900">
                           {s.currency === 'INR' ? '₹' : '$'}{s.total}
                         </strong>
                       </div>
@@ -929,7 +929,7 @@ function AccountPageContent() {
                           type="button"
                           onClick={() => handlePaySample(s.id)}
                           disabled={payingSampleId === s.id}
-                          className="px-4 py-2 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-xs"
+                          className="px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-xs flex items-center justify-center shrink-0"
                         >
                           {payingSampleId === s.id ? 'Verifying...' : 'Pay Online Now'}
                         </button>
@@ -961,10 +961,10 @@ function AccountPageContent() {
                 {wholesaleOrders.map((o) => (
                   <div
                     key={o.id}
-                    className="p-5 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                    className="p-4 sm:p-5 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono font-bold text-gray-900">{o.orderNumber}</span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
                           {o.status}
@@ -978,7 +978,7 @@ function AccountPageContent() {
                       </div>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-left sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/60">
                       <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Amount</span>
                       <strong className="text-base font-black text-gray-900">
                         ₹{Number(o.totalAmount).toLocaleString('en-IN')}
@@ -1008,7 +1008,7 @@ function AccountPageContent() {
                 {invoices.map((inv) => (
                   <div
                     key={inv.id}
-                    className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-between text-xs"
+                    className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
                     <div>
                       <span className="font-mono font-bold text-gray-900">{inv.invoiceNumber}</span>
@@ -1016,13 +1016,13 @@ function AccountPageContent() {
                         Issued: {new Date(inv.issuedDate || inv.createdAt).toLocaleDateString()} • Status: <strong className="text-green-700">{inv.status}</strong>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/60">
                       <span className="font-black text-gray-900 text-sm">
                         ₹{Number(inv.totalAmount).toLocaleString('en-IN')}
                       </span>
                       <button
                         onClick={() => alert(`Invoice ${inv.invoiceNumber} PDF download initiated.`)}
-                        className="px-3 py-1.5 text-xs font-bold text-orange-600 bg-white border border-gray-200 hover:bg-orange-50 rounded-lg flex items-center gap-1"
+                        className="px-3.5 py-2 min-h-[40px] text-xs font-bold text-orange-600 bg-white border border-gray-200 hover:bg-orange-50 rounded-lg flex items-center justify-center gap-1 shrink-0"
                       >
                         <Download className="w-3.5 h-3.5" /> PDF
                       </button>
@@ -1051,10 +1051,10 @@ function AccountPageContent() {
                 {payments.map((p) => (
                   <div
                     key={p.id}
-                    className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-between text-xs"
+                    className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                   >
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono font-bold text-gray-900">{p.transactionId || p.id}</span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-800">
                           {p.status}
@@ -1118,20 +1118,20 @@ function AccountPageContent() {
                   {documents.map((doc: any, dIdx: number) => (
                     <div
                       key={dIdx}
-                      className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between text-xs"
+                      className="p-3.5 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-orange-600" />
-                        <div>
-                          <span className="font-bold text-gray-900">{doc.name || doc.title}</span>
-                          <span className="text-[10px] text-gray-400 ml-2 font-mono">{doc.type || 'TECH_PACK'}</span>
+                        <FileText className="w-4 h-4 text-orange-600 shrink-0" />
+                        <div className="min-w-0">
+                          <span className="font-bold text-gray-900 truncate block sm:inline">{doc.name || doc.title}</span>
+                          <span className="text-[10px] text-gray-400 sm:ml-2 font-mono block sm:inline">{doc.type || 'TECH_PACK'}</span>
                         </div>
                       </div>
                       <a
                         href={doc.url || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1 text-xs font-bold text-orange-600 bg-white border border-gray-200 rounded-lg hover:bg-orange-50 flex items-center gap-1"
+                        className="px-3.5 py-1.5 min-h-[36px] text-xs font-bold text-orange-600 bg-white border border-gray-200 rounded-lg hover:bg-orange-50 flex items-center justify-center gap-1 shrink-0"
                       >
                         <Download className="w-3.5 h-3.5" /> Download
                       </a>

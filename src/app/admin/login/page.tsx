@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  className="block w-full pl-10 pr-3 py-2.5 min-h-[44px] border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                   placeholder="admin@tuffloom.com"
                 />
               </div>
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  className="block w-full pl-10 pr-3 py-2.5 min-h-[44px] border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                   placeholder="••••••••"
                 />
               </div>
@@ -108,7 +108,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl shadow-sm text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-2.5 min-h-[44px] px-4 rounded-xl shadow-sm text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -128,11 +128,11 @@ export default function AdminLoginPage() {
               <ShieldCheck className="w-4 h-4 text-orange-600" />
               <span>Quick Test Credentials:</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={fillAdmin}
-                className="px-3 py-2 text-left rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 transition-colors"
+                className="px-3 py-2.5 min-h-[44px] text-left rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 transition-colors"
               >
                 <div className="text-[11px] font-bold">Admin Account</div>
                 <div className="text-[10px] text-orange-600 truncate">admin@tuffloom.com</div>
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
               <button
                 type="button"
                 onClick={fillCustomer}
-                className="px-3 py-2 text-left rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 transition-colors"
+                className="px-3 py-2.5 min-h-[44px] text-left rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 transition-colors"
               >
                 <div className="text-[11px] font-bold">Customer Account</div>
                 <div className="text-[10px] text-gray-500 truncate">customer@example.com</div>

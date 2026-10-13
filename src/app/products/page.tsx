@@ -110,19 +110,19 @@ function ProductsCatalog() {
                   placeholder="Search products by title, Style Code (e.g. TL-BAG-0101)..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 min-h-[44px] text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 />
               </div>
               <button
                 type="submit"
-                className="px-4 py-2.5 text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl transition-colors"
+                className="px-4 py-2.5 min-h-[44px] text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl transition-colors shrink-0"
               >
                 Search
               </button>
             </form>
 
             {/* Product Type Toggle Buttons */}
-            <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto text-xs font-bold">
+            <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto no-scrollbar touch-pan-x text-xs font-bold">
               {[
                 { label: 'All Catalog', value: 'ALL' },
                 { label: 'Ready Wholesale', value: 'READY_WHOLESALE' },
@@ -135,7 +135,7 @@ function ProductsCatalog() {
                     setProductType(tab.value)
                     setCurrentPage(1)
                   }}
-                  className={`px-3 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  className={`px-3 py-2 min-h-[38px] rounded-lg transition-all whitespace-nowrap flex items-center justify-center ${
                     productType === tab.value
                       ? 'bg-white text-gray-900 shadow-xs'
                       : 'text-gray-500 hover:text-gray-800'
@@ -148,7 +148,7 @@ function ProductsCatalog() {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 overflow-x-auto text-xs">
+          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 overflow-x-auto no-scrollbar touch-pan-x text-xs">
             <span className="text-gray-400 font-semibold uppercase text-[10px] tracking-wider shrink-0 mr-1 flex items-center gap-1">
               <Filter className="w-3 h-3" /> Categories:
             </span>
@@ -165,7 +165,7 @@ function ProductsCatalog() {
                   setCategory(cat.value)
                   setCurrentPage(1)
                 }}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                className={`px-3 py-2 min-h-[36px] rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center justify-center ${
                   category === cat.value
                     ? 'bg-orange-100 text-orange-800 font-bold'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -313,13 +313,13 @@ function ProductsCatalog() {
                         <div className="grid grid-cols-2 gap-2">
                           <Link
                             href={`/custom-manufacturing?productId=${product.id}&styleCode=${product.styleCode || ''}`}
-                            className="w-full py-2 px-2 text-center text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-colors shadow-xs"
+                            className="w-full py-2.5 px-2 min-h-[40px] text-center text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-colors shadow-xs flex items-center justify-center"
                           >
                             Get Quote
                           </Link>
                           <Link
                             href={`/products/${product.slug}`}
-                            className="w-full py-2 px-2 text-center text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                            className="w-full py-2.5 px-2 min-h-[40px] text-center text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors flex items-center justify-center"
                           >
                             Specs & Sample
                           </Link>
@@ -328,13 +328,13 @@ function ProductsCatalog() {
                         <div className="grid grid-cols-2 gap-2">
                           <Link
                             href={`/products/${product.slug}`}
-                            className="w-full py-2 px-2 text-center text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl transition-colors shadow-xs"
+                            className="w-full py-2.5 px-2 min-h-[40px] text-center text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl transition-colors shadow-xs flex items-center justify-center"
                           >
                             Order Stock
                           </Link>
                           <Link
                             href={`/custom-manufacturing?productId=${product.id}&styleCode=${product.styleCode || ''}`}
-                            className="w-full py-2 px-2 text-center text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl border border-orange-200 transition-colors"
+                            className="w-full py-2.5 px-2 min-h-[40px] text-center text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl border border-orange-200 transition-colors flex items-center justify-center"
                           >
                             Custom Quote
                           </Link>
@@ -342,7 +342,7 @@ function ProductsCatalog() {
                       ) : (
                         <Link
                           href={`/products/${product.slug}`}
-                          className="w-full py-2 text-center text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                          className="w-full py-2.5 min-h-[40px] text-center text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                         >
                           View Wholesale Tiers <ArrowRight className="w-3.5 h-3.5" />
                         </Link>

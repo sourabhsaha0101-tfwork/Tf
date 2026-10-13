@@ -263,7 +263,7 @@ export default function AdminManufacturingPage() {
                     <select
                       value={newStage}
                       onChange={(e) => setNewStage(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3.5 py-2.5 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     >
                       {elevenStages.map((st) => (
                         <option key={st.value} value={st.value}>
@@ -302,7 +302,7 @@ export default function AdminManufacturingPage() {
                   <button
                     type="submit"
                     disabled={updatingStage}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs"
+                    className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs flex items-center justify-center"
                   >
                     {updatingStage ? 'Saving Stage...' : 'Log Milestone & Update Stage'}
                   </button>
@@ -323,7 +323,7 @@ export default function AdminManufacturingPage() {
                       type="text"
                       value={freightCarrier}
                       onChange={(e) => setFreightCarrier(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl"
                       placeholder="e.g. Maersk / DHL Global"
                     />
                   </div>
@@ -333,7 +333,7 @@ export default function AdminManufacturingPage() {
                       type="text"
                       value={trackingNumber}
                       onChange={(e) => setTrackingNumber(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-mono"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-mono"
                       placeholder="e.g. MSKU-982144"
                     />
                   </div>
@@ -343,7 +343,7 @@ export default function AdminManufacturingPage() {
                       type="text"
                       value={billOfLadingUrl}
                       onChange={(e) => setBillOfLadingUrl(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl"
                       placeholder="https://.../bol.pdf"
                     />
                   </div>
@@ -353,7 +353,7 @@ export default function AdminManufacturingPage() {
                   <button
                     type="submit"
                     disabled={updatingDispatch}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs"
+                    className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs flex items-center justify-center"
                   >
                     {updatingDispatch ? 'Saving Dispatch...' : 'Save Dispatch & Tracking'}
                   </button>

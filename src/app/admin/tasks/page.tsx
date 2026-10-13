@@ -79,12 +79,12 @@ export default function AdminTasksPage() {
         </div>
 
         {/* Filter */}
-        <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto text-xs font-bold">
+        <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto no-scrollbar touch-pan-x text-xs font-bold">
           {['ALL', 'PENDING', 'IN_PROGRESS', 'COMPLETED'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-2 min-h-[36px] rounded-lg transition-all whitespace-nowrap flex items-center justify-center ${
                 statusFilter === st
                   ? 'bg-white text-gray-900 shadow-xs'
                   : 'text-gray-500 hover:text-gray-800'
@@ -170,7 +170,7 @@ export default function AdminTasksPage() {
                       <button
                         onClick={() => handleUpdateStatus(task.id, 'COMPLETED')}
                         disabled={updatingId === task.id}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors disabled:opacity-50"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 min-h-[40px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors disabled:opacity-50"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Mark Complete
@@ -180,7 +180,7 @@ export default function AdminTasksPage() {
                       <button
                         onClick={() => handleUpdateStatus(task.id, 'IN_PROGRESS')}
                         disabled={updatingId === task.id}
-                        className="py-1.5 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold transition-colors disabled:opacity-50"
+                        className="py-2.5 px-3 min-h-[40px] rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center"
                       >
                         Start
                       </button>

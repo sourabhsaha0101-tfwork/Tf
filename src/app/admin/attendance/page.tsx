@@ -91,43 +91,89 @@ export default function AdminAttendancePage() {
         </div>
       ) : (
         <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px] tracking-wider">
-              <tr>
-                <th className="px-6 py-4">Employee</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Check In</th>
-                <th className="px-6 py-4">Check Out</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Notes</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {records.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50/60 transition-colors">
-                  <td className="px-6 py-4 font-bold text-gray-900 flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-gray-400" />
+          {/* Mobile Cards (Visible on screens < md) */}
+          <div className="block md:hidden divide-y divide-gray-100">
+            {records.map((r) => (
+              <div key={r.id} className="p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-sm text-gray-900 flex items-center gap-2">
+                    <User className="w-4 h-4 text-orange-600" />
                     <span>{r.employeeName || 'Staff Member'}</span>
-                  </td>
-                  <td className="px-6 py-4 font-mono text-gray-600">{r.date}</td>
-                  <td className="px-6 py-4 font-mono text-gray-600">
-                    {r.checkInTime ? new Date(r.checkInTime).toLocaleTimeString() : '—'}
-                  </td>
-                  <td className="px-6 py-4 font-mono text-gray-600">
-                    {r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : 'Active Shift'}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600">
-                      {r.status}
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {r.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl text-xs text-center">
+                  <div>
+                    <span className="text-[10px] text-gray-400 block font-semibold uppercase">Date</span>
+                    <span className="font-mono text-gray-700 font-bold">{r.date}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 block font-semibold uppercase">Check In</span>
+                    <span className="font-mono text-gray-900 font-bold">
+                      {r.checkInTime ? new Date(r.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">{r.notes || '—'}</td>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 block font-semibold uppercase">Check Out</span>
+                    <span className="font-mono text-gray-900 font-bold">
+                      {r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Active'}
+                    </span>
+                  </div>
+                </div>
+
+                {r.notes && (
+                  <div className="text-[11px] text-gray-500 italic bg-white p-2 rounded-lg border border-gray-100">
+                    {r.notes}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table (Hidden on screens < md) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px] tracking-wider">
+                <tr>
+                  <th className="px-6 py-4">Employee</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Check In</th>
+                  <th className="px-6 py-4">Check Out</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Notes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {records.map((r) => (
+                  <tr key={r.id} className="hover:bg-gray-50/60 transition-colors">
+                    <td className="px-6 py-4 font-bold text-gray-900 flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-gray-400" />
+                      <span>{r.employeeName || 'Staff Member'}</span>
+                    </td>
+                    <td className="px-6 py-4 font-mono text-gray-600">{r.date}</td>
+                    <td className="px-6 py-4 font-mono text-gray-600">
+                      {r.checkInTime ? new Date(r.checkInTime).toLocaleTimeString() : '—'}
+                    </td>
+                    <td className="px-6 py-4 font-mono text-gray-600">
+                      {r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : 'Active Shift'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600">
+                        {r.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">{r.notes || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
   )
 }
+

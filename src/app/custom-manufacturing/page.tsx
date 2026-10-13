@@ -709,83 +709,83 @@ function QuotationFormContent() {
 
               <div className="space-y-4 text-xs">
                 {/* Checkboxes grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={customLogoRequired}
                       onChange={(e) => setCustomLogoRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Custom Logo</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={privateLabelRequired}
                       onChange={(e) => setPrivateLabelRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Private Label</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={customNeckLabelRequired}
                       onChange={(e) => setCustomNeckLabelRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Neck / Inner Label</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={customHangTagRequired}
                       onChange={(e) => setCustomHangTagRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Custom Hang Tag</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={packagingRequired}
                       onChange={(e) => setPackagingRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Custom Packaging</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={customPackagingBoxRequired}
                       onChange={(e) => setCustomPackagingBoxRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Custom Packaging Box</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={barcodeRequired}
                       onChange={(e) => setBarcodeRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Custom Barcode / UPC</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100">
+                  <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200 min-h-[48px] select-none transition-colors">
                     <input
                       type="checkbox"
                       checked={customProductLabelRequired}
                       onChange={(e) => setCustomProductLabelRequired(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded"
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0"
                     />
                     <span className="font-semibold text-gray-800">Product Care Label</span>
                   </label>
@@ -846,8 +846,9 @@ function QuotationFormContent() {
                     Files are encrypted and accessible only by authorized engineering leads.
                   </p>
                   <div className="pt-2">
-                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 hover:bg-gray-100 rounded-xl font-bold text-gray-700 shadow-xs">
-                      <span>Browse Files</span>
+                    <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 hover:bg-gray-100 active:bg-gray-200 rounded-xl font-bold text-gray-700 shadow-xs min-h-[44px] transition-colors select-none">
+                      <Upload className="w-4 h-4 text-orange-600" />
+                      <span>Browse Tech Pack / CAD Files</span>
                       <input
                         type="file"
                         className="hidden"
@@ -910,7 +911,7 @@ function QuotationFormContent() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-8 py-4 text-xs font-black text-white bg-orange-600 hover:bg-orange-700 rounded-2xl shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full sm:w-auto px-8 py-3.5 min-h-[48px] text-xs sm:text-sm font-black text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 rounded-2xl shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {submitting ? (
                   <>

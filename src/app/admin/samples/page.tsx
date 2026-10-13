@@ -210,7 +210,7 @@ export default function AdminSamplesPage() {
                     <select
                       value={sampleStatus}
                       onChange={(e) => setSampleStatus(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     >
                       <option value="SAMPLE_REQUESTED">SAMPLE_REQUESTED</option>
                       <option value="PAYMENT_PENDING">PAYMENT_PENDING</option>
@@ -229,7 +229,7 @@ export default function AdminSamplesPage() {
                     <select
                       value={paymentStatus}
                       onChange={(e) => setPaymentStatus(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     >
                       <option value="PENDING">PENDING</option>
                       <option value="PAID">PAID</option>
@@ -245,7 +245,7 @@ export default function AdminSamplesPage() {
                       type="text"
                       value={courier}
                       onChange={(e) => setCourier(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl"
                       placeholder="e.g. DHL Express / FedEx"
                     />
                   </div>
@@ -255,7 +255,7 @@ export default function AdminSamplesPage() {
                       type="text"
                       value={trackingNumber}
                       onChange={(e) => setTrackingNumber(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-mono"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-mono"
                       placeholder="e.g. DHL-981244091"
                     />
                   </div>
@@ -265,7 +265,7 @@ export default function AdminSamplesPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs"
+                    className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs flex items-center justify-center"
                   >
                     {saving ? 'Updating...' : 'Save Sample Order Updates'}
                   </button>

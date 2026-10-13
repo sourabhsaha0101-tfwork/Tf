@@ -332,7 +332,62 @@ export default function AdminCategoriesPage() {
               </button>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Subcategories Mobile Cards (Visible on screens < md) */}
+            <div className="block md:hidden divide-y divide-gray-100">
+              {!selectedMain.children || selectedMain.children.length === 0 ? (
+                <div className="p-6 text-center text-gray-400 text-xs">
+                  No subcategories defined for {selectedMain.name}. Click &quot;Add Subcategory&quot; to create one.
+                </div>
+              ) : (
+                selectedMain.children.map((sub, idx) => (
+                  <div key={sub.id} className="p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-gray-400 font-bold">#{sub.sortOrder || idx + 1}</span>
+                        <span className="font-bold text-sm text-gray-900">{sub.name}</span>
+                      </div>
+                      <button
+                        onClick={() => handleToggleStatus(sub)}
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
+                          sub.isActive
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                            : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                        }`}
+                      >
+                        {sub.isActive ? 'Active' : 'Inactive'}
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] font-mono text-gray-500">
+                      Slug: <span className="text-gray-800 font-bold">{sub.slug}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 border-t border-gray-100 text-xs">
+                      <span className="text-[11px] text-gray-400">Parent: {selectedMain.name}</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => openEdit(sub)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 rounded-lg bg-gray-100 hover:bg-orange-50 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(sub)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-rose-600 rounded-lg bg-gray-100 hover:bg-rose-50 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table (Hidden on screens < md) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-gray-50 text-gray-500 font-semibold uppercase tracking-wider border-b border-gray-100">
                   <tr>
@@ -404,7 +459,8 @@ export default function AdminCategoriesPage() {
       {/* Add / Edit Category Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-bold text-gray-900 text-base">
                 {isEditing ? `Edit ${name}` : modalType === 'category' ? 'Create Main Category' : 'Create Subcategory'}

@@ -143,12 +143,12 @@ export default function AdminQuotationsPage() {
         </div>
 
         {/* Filter pills */}
-        <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto text-xs font-bold">
+        <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto no-scrollbar touch-pan-x text-xs font-bold">
           {['ALL', 'SUBMITTED', 'UNDER_REVIEW', 'QUOTATION_SENT', 'APPROVED'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-2 min-h-[36px] rounded-lg transition-all whitespace-nowrap flex items-center justify-center ${
                 statusFilter === st ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800'
               }`}
             >
@@ -338,7 +338,7 @@ export default function AdminQuotationsPage() {
                       <select
                         value={quotedCurrency}
                         onChange={(e) => setQuotedCurrency(e.target.value as 'USD' | 'INR')}
-                        className="px-2 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                        className="px-2 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                       >
                         <option value="USD">USD ($)</option>
                         <option value="INR">INR (₹)</option>
@@ -348,7 +348,7 @@ export default function AdminQuotationsPage() {
                         step="0.01"
                         value={quotedPrice}
                         onChange={(e) => setQuotedPrice(parseFloat(e.target.value) || 0)}
-                        className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                        className="flex-1 px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                       />
                     </div>
                   </div>
@@ -359,7 +359,7 @@ export default function AdminQuotationsPage() {
                       type="number"
                       value={leadDays}
                       onChange={(e) => setLeadDays(parseInt(e.target.value) || 30)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     />
                   </div>
 
@@ -368,7 +368,7 @@ export default function AdminQuotationsPage() {
                     <select
                       value={statusToUpdate}
                       onChange={(e) => setStatusToUpdate(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     >
                       <option value="SUBMITTED">SUBMITTED</option>
                       <option value="UNDER_REVIEW">UNDER_REVIEW</option>
@@ -388,7 +388,7 @@ export default function AdminQuotationsPage() {
                     type="text"
                     value={paymentTerms}
                     onChange={(e) => setPaymentTerms(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl"
+                    className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl"
                   />
                 </div>
 
@@ -407,12 +407,12 @@ export default function AdminQuotationsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={() => handleSaveProposal(false)}
                     disabled={saving}
-                    className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 rounded-xl"
+                    className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 rounded-xl flex items-center justify-center"
                   >
                     {saving ? 'Saving...' : 'Save Draft'}
                   </button>
@@ -421,7 +421,7 @@ export default function AdminQuotationsPage() {
                     type="button"
                     onClick={() => handleSaveProposal(true)}
                     disabled={saving}
-                    className="px-5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xs flex items-center justify-center gap-1.5"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>Send Proposal to Customer</span>

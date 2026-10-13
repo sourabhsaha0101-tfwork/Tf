@@ -207,7 +207,7 @@ export default function AdminInspectionsPage() {
                     <select
                       value={inspectionType}
                       onChange={(e) => setInspectionType(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     >
                       <option value="FINAL_AQL_2_5">Final Pre-Shipment (AQL 2.5)</option>
                       <option value="IN_LINE_30">30% In-Line Production QC</option>
@@ -220,7 +220,7 @@ export default function AdminInspectionsPage() {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as any)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     >
                       <option value="PASSED">PASSED (Compliant with ANSI/ASQ Z1.4)</option>
                       <option value="FAILED">FAILED (Exceeds Acceptable Defect Limit)</option>
@@ -236,7 +236,7 @@ export default function AdminInspectionsPage() {
                       type="number"
                       value={sampleSize}
                       onChange={(e) => setSampleSize(parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     />
                   </div>
                   <div>
@@ -245,7 +245,7 @@ export default function AdminInspectionsPage() {
                       type="number"
                       value={criticalDefects}
                       onChange={(e) => setCriticalDefects(parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold text-red-600"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold text-red-600"
                     />
                   </div>
                   <div>
@@ -254,7 +254,7 @@ export default function AdminInspectionsPage() {
                       type="number"
                       value={majorDefects}
                       onChange={(e) => setMajorDefects(parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     />
                   </div>
                   <div>
@@ -263,7 +263,7 @@ export default function AdminInspectionsPage() {
                       type="number"
                       value={minorDefects}
                       onChange={(e) => setMinorDefects(parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl font-bold"
                     />
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function AdminInspectionsPage() {
                     value={reportUrl}
                     onChange={(e) => setReportUrl(e.target.value)}
                     placeholder="https://.../aql-inspection-report.pdf"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl"
+                    className="w-full px-3.5 py-2 min-h-[44px] bg-white border border-gray-300 rounded-xl"
                   />
                 </div>
 
@@ -293,7 +293,7 @@ export default function AdminInspectionsPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-xs"
+                    className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-xs flex items-center justify-center"
                   >
                     {saving ? 'Publishing Certificate...' : 'Publish AQL 2.5 Inspection Certificate'}
                   </button>
